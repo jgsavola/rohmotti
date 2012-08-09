@@ -21,12 +21,15 @@ INSERT INTO ruokaaine (nimi) VALUES
        ('öljy');
 
 CREATE TABLE ruokalaji(
-       nimi text PRIMARY KEY
+       nimi text PRIMARY KEY,
+       valmistusohje text NOT NULL
 );
 
-INSERT INTO ruokalaji (nimi) VALUES
-       ('Lätyt'),
-       ('Pannukakku');
+INSERT INTO ruokalaji (nimi, valmistusohje) VALUES
+       ('Lätyt', 'Vatkaa munien rakenne rikki, lisää muut aineet ja anna taikinan turvota hetki. Paista isoja lättyjä paistinpannulla rasvassa.Jos paistat pieniä lättyjä lettupannulla, lisää vajaa dl vehnäjauhoja.Tämä taikina käy myös vohveleidentekoon vohveliraudalla.
+
+Tarjoile lätyt kermavaahdon sekä hillon kera.'),
+       ('Pannukakku', 'Valmista pannukakku.');
 
 CREATE TABLE mittayksikko(
        nimi text PRIMARY KEY,

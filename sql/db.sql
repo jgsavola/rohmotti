@@ -36,7 +36,9 @@ INSERT INTO ruokaaine (nimi) VALUES
        ('sokeri'),
        ('leivinjauhe'),
        ('vaniljasokeri'),
-       ('öljy');
+       ('öljy'),
+       ('peruna')
+;
 
 CREATE TABLE resepti(
        resepti_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('RE'),

@@ -52,6 +52,8 @@ def main():
     dbname = dbuser
     conn = psycopg2.connect("dbname=%s user=%s" % (dbname, dbuser))
 
+    debug = form.getvalue('debug')
+
     path_info = os.environ.get('PATH_INFO', '')
     request_uri = os.environ.get('REQUEST_URI', '')
     #module_to_load = re.sub(r'^/([^/]+).*', r'\1', path_info)
@@ -60,10 +62,13 @@ def main():
     
     conf = {'path_info': path_info, 'request_uri': request_uri}
 
-
     html_template_filename = get_html_template_filename()
     if html_template_filename is not None:
         print "Content-Type: text/html; charset=UTF-8\r\n\r\n"
+
+        if debug:
+            print cgi.print_environ()
+
     # print "path_info: %s" % (path_info)
     # print "handler_name: %s" % (module_to_load)
     # print "template_name: %s" % (get_html_template_filename())

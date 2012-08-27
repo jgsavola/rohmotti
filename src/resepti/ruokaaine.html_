@@ -11,7 +11,7 @@
     ${ruokaainelista}
 
     <p>Lisää ruoka-aine</p>
-    <form action="/~jonne/resepti.py/ruokaaine" method="post">
+    <form action="${REQUEST_URI}" method="post">
       <fieldset>
 	<legend>Anna nimi:</legend>
 	<input type="text" name="nimi" />

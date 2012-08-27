@@ -76,7 +76,9 @@ def main():
     module = import_module(module_to_load)
     handler = module.Handler(conn, form, conf)
 
-    render_dict = handler.render()
+    render_dict = { 'REQUEST_URI': request_uri }
+
+    render_dict.update(handler.render())
 
     if html_template_filename is not None:
         f = open(get_html_template_filename(), 'r')

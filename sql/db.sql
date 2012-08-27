@@ -96,7 +96,9 @@ INSERT INTO resepti_ruokaaine (jarjestys, resepti_id, ruokaaine_id, maara, mitta
        (2, hae_resepti_id('Lätyt'), hae_ruokaaine_id('maito'), 5, 'dl'),
        (3, hae_resepti_id('Lätyt'), hae_ruokaaine_id('vehnäjauho'), 2.5, 'dl'),
        (4, hae_resepti_id('Lätyt'), hae_ruokaaine_id('suola'), 1, 'tl'),
-       (5, hae_resepti_id('Lätyt'), hae_ruokaaine_id('öljy'), 1, 'rkl');
+       (5, hae_resepti_id('Lätyt'), hae_ruokaaine_id('öljy'), 1, 'rkl'),
+       (6, hae_resepti_id('Lätyt'), hae_ruokaaine_id('peruna'), 1, 'rkl')
+;
 
 CREATE TABLE ateria(
        ateria_id serial PRIMARY KEY,

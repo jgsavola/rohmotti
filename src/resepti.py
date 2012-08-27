@@ -14,9 +14,12 @@ from string import Template
 from DatabaseObject import DatabaseObject
 
 handler_mapping = [[r'^/ruokaaine',        'ruokaaine'],
+                   [r'^/resepti',          'resepti'],
                    [r'^/kuva',             'kuva']]
 template_mapping = [[r'^/ruokaaine$',      '/resepti/ruokaaine.html_'],
                     [r'^/ruokaaine/\d+$',  '/resepti/ruokaaine_1.html_'],
+                    [r'^/resepti$',        '/resepti/resepti.html_'],
+                    [r'^/resepti/\d+$',    '/resepti/resepti_1.html_'],
                     [r'^/kuva/\d+$',       None]]
 
 def get_handler_name():

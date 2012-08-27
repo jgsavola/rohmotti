@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>${nimi}</title>
+    <style type="text/css">.valmistusohje { margin-left:20px; width: 40em; background: #E0E0E0 }</style>
+  </head>
+  <body>
+    <h1>${nimi}</h1>
+
+    <div class="valmistusohje">${valmistusohje}</p>
+
+    ${kuva}
+  </body>
+</html>
+

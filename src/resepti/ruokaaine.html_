@@ -1,0 +1,21 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">p.status { color: red; background: #e0e0c0; width: 20em }; fieldset { border: none }</style>
+    <title>Ruoka-aineet</title>
+  </head>
+  <body>
+    <h1>Ruoka-aineet</h1>
+    ${status}
+
+    ${ruokaainelista}
+
+    <p>Lisää ruoka-aine</p>
+    <form action="/~jonne/resepti.py/ruokaaine" method="post">
+      <fieldset>
+	<legend>Anna nimi:</legend>
+	<input type="text" name="nimi" />
+      </fieldset>
+    </form>
+  </body>
+</html>

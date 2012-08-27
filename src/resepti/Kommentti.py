@@ -1,6 +1,7 @@
 import psycopg2
+from DatabaseObject import DatabaseObject
 
-class Kommentti:
+class Kommentti(DatabaseObject):
     def __init__(self, kommentti_id=None, kohde_id=None, teksti=None, kuva=None, aika=None):
         self.kommentti_id = kommentti_id
         self.kohde_id = kohde_id
@@ -8,12 +9,9 @@ class Kommentti:
         self.kuva = kuva
         self.aika = aika
 
-class KommenttiFactory:
-    def __init__(self, conn):
-        self.conn = conn
-
-    def load_from_database(self, kommentti_id):
-        cur = self.conn.cursor()
+    @classmethod
+    def load_from_database(cls, kommentti_id):
+        cur = cls.conn.cursor()
         cur.execute("SELECT kommentti_id, kohde_id, teksti, kuva, aika FROM reseptiohjelma.kommentti WHERE kommentti_id = %s", (int(kommentti_id),))
         row = cur.fetchone()
 
@@ -21,10 +19,11 @@ class KommenttiFactory:
 
         return kommentti
 
-    def new(self, nimi=None):
-        cur = self.conn.cursor()
+    @classmethod
+    def new(cls, nimi=None):
+        cur = cls.conn.cursor()
         cur.execute("INSERT INTO reseptiohjelma.kommentti (nimi) VALUES (%s) RETURNING kommentti_id, nimi", (nimi,))
-        self.conn.commit()
+        cls.conn.commit()
 
         row = cur.fetchone()
 
@@ -32,8 +31,9 @@ class KommenttiFactory:
 
         return kommentti
 
-    def load_ids(self, kohde_id):
-        cur = self.conn.cursor()
+    @classmethod
+    def load_ids(cls, kohde_id):
+        cur = cls.conn.cursor()
         cur.execute("SELECT kommentti_id FROM reseptiohjelma.kommentti WHERE kohde_id = %s", (int(kohde_id),))
         for row in cur.fetchall():
             yield row[0]

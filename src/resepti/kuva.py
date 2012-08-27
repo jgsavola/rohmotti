@@ -7,14 +7,12 @@ import psycopg2
 import json
 import cgi
 import cgitb
-from Kommentti import Kommentti, KommenttiFactory
+from Kommentti import Kommentti
 
 class Handler:
-    def __init__(self, conn, form, conf):
-        self.conn = conn
+    def __init__(self, form, conf):
         self.form = form
         self.conf = conf
-        self.kommenttiFactory = KommenttiFactory(conn)
 
     def render(self):
         path_info = self.conf['path_info']
@@ -28,7 +26,7 @@ class Handler:
             if kuva_id is not None:
                 print "Content-Type: image/jpeg\n"
 
-                kuva = self.kommenttiFactory.load_from_database(kommentti_id = kuva_id)
+                kuva = Kommentti.load_from_database(kommentti_id = kuva_id)
 
                 sys.stdout.write(str(kuva.kuva))
 

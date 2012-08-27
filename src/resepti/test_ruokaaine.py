@@ -3,15 +3,16 @@
 import os
 import pwd
 import psycopg2
-from Ruokaaine import RuokaaineFactory, Ruokaaine
+from DatabaseObject import DatabaseObject
+from Ruokaaine import Ruokaaine
 
 dbuser = pwd.getpwuid(os.getuid()).pw_name
 dbname = dbuser
 conn = psycopg2.connect("dbname=%s user=%s" % (dbname, dbuser))
 
-factory = RuokaaineFactory(conn)
+DatabaseObject.setDatabaseConnection(conn)
 
-suola = factory.load_from_database(4)
+suola = Ruokaaine.load_from_database(4)
 
 print "ruokaaine: %d -- %s" % (suola.ruokaaine_id, suola.nimi)
 

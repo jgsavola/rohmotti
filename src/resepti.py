@@ -11,7 +11,7 @@ import json
 import cgi
 import cgitb
 from string import Template
-from Ruokaaine import Ruokaaine, RuokaaineFactory
+from DatabaseObject import DatabaseObject
 
 handler_mapping = [[r'^/ruokaaine',        'ruokaaine'],
                    [r'^/kuva',             'kuva']]
@@ -52,6 +52,11 @@ def main():
     dbname = dbuser
     conn = psycopg2.connect("dbname=%s user=%s" % (dbname, dbuser))
 
+    #
+    # Setup database connection for the object model
+    #
+    DatabaseObject.setDatabaseConnection(conn)
+
     debug = form.getvalue('debug')
 
     path_info = os.environ.get('PATH_INFO', '')
@@ -74,7 +79,7 @@ def main():
     # print "template_name: %s" % (get_html_template_filename())
 
     module = import_module(module_to_load)
-    handler = module.Handler(conn, form, conf)
+    handler = module.Handler(form, conf)
 
     render_dict = { 'REQUEST_URI': request_uri }
 

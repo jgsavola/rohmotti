@@ -44,3 +44,8 @@ class Resepti(DatabaseObject):
         cur.execute("SELECT resepti_id FROM reseptiohjelma.resepti")
         for row in cur.fetchall():
             yield row[0]
+
+    def save(self):
+        cur = Resepti.conn.cursor()
+        cur.execute("UPDATE resepti SET nimi = %s, valmistusohje = %s WHERE resepti_id = %s", (self.nimi, self.valmistusohje, self.resepti_id))
+        Resepti.conn.commit()

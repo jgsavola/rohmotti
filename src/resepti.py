@@ -15,11 +15,13 @@ from DatabaseObject import DatabaseObject
 
 handler_mapping = [[r'^/ruokaaine',        'ruokaaine'],
                    [r'^/resepti',          'resepti'],
-                   [r'^/kuva',             'kuva']]
+                   [r'^/kuva',             'kuva'],
+                   [r'^/kirjautuminen',    'kirjautuminen']]
 template_mapping = [[r'^/ruokaaine$',      '/resepti/ruokaaine.html_'],
                     [r'^/ruokaaine/\d+$',  '/resepti/ruokaaine_1.html_'],
                     [r'^/resepti$',        '/resepti/resepti.html_'],
                     [r'^/resepti/\d+$',    '/resepti/resepti_1.html_'],
+                    [r'^/kirjautuminen$',   '/resepti/kirjautuminen.html_'],
                     [r'^/kuva/\d+$',       None]]
 
 def get_handler_name():

@@ -1,0 +1,26 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" media="all" href="${APP_ROOT_URI}/src/styles/default.css" />
+
+    <title>Kirjautuminen</title>
+  </head>
+  <body>
+    ${navigation}
+
+    <h1>Kirjautuminen</h1>
+
+    ${status}
+
+    <form action="${REQUEST_URI}" method="post">
+      <fieldset>
+	<legend>Anna käyttäjätunnus ja salasana:</legend> 
+	<label for="tunnus">Tunnus</label>
+	<input type="text" name="tunnus" id="tunnus" />
+	<label for="salasana">Salasana</label>
+	<input type="password" name="salasana" id="salasana" />
+	<input type="submit" value="Kirjaudu!" />
+     </fieldset>
+    </form>
+  </body>
+</html>

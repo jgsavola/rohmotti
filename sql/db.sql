@@ -116,7 +116,9 @@ CREATE TABLE kommentti(
 
 CREATE TABLE henkilo(
        henkilo_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('HE'),
-       nimi text NOT NULL
+       nimi text NOT NULL,
+       tunnus text NOT NULL UNIQUE,
+       salasana text NOT NULL
 );
        
 CREATE TABLE rajoitus(

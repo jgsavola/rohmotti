@@ -8,6 +8,8 @@ import psycopg2
 import json
 import cgi
 from Resepti import Resepti
+from ReseptiRuokaaine import ReseptiRuokaaine
+from html_parser import CommentHTMLParser
 
 class Handler:
     def __init__(self, form, conf):
@@ -30,7 +32,24 @@ class Handler:
                 for kommentti in resepti.kommentit:
                     kuva_link += "<img src=\"%s/../../kuva/%d\"/>\n" % (self.conf['request_uri'], kommentti.kommentti_id)
 
-                return {'nimi': resepti.nimi, 'resepti_id': resepti.resepti_id, 'valmistusohje': resepti.valmistusohje, 'kuva': kuva_link}
+                ruokaaineetlista = "<ul>\n"
+                for reseptiruokaaine_id in ReseptiRuokaaine.load_ids(resepti_id = resepti.resepti_id, ruokaaine_id = None):
+                    reseptiruokaaine = ReseptiRuokaaine.load_from_database(reseptiruokaaine_id[0], reseptiruokaaine_id[1])
+                    ruokaaine_link = "<a href=\"%s/../../ruokaaine/%d\">%s</a>" % (self.conf['request_uri'], reseptiruokaaine.ruokaaine.ruokaaine_id, reseptiruokaaine.ruokaaine.nimi)
+                    ruokaaineetlista += "<li>%s %d %s</li>\n" % (ruokaaine_link, reseptiruokaaine.maara, reseptiruokaaine.mittayksikko)
+                ruokaaineetlista += "</ul>\n"
+
+                valmistusohje_text = resepti.valmistusohje
+                mode = self.form.getvalue('mode')
+                if mode == 'edit':
+                    valmistusohje_text = """
+<form action="%s%s" method="post">
+  <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
+  <input type="submit" value="submit" />
+</form>
+""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text)
+
+                return {'nimi': resepti.nimi, 'resepti_id': resepti.resepti_id, 'valmistusohje': valmistusohje_text, 'kuva': kuva_link, 'ruokaaineetlista': ruokaaineetlista}
             else:
                 reseptilista = "<ul>\n"
                 for id in Resepti.load_ids():
@@ -39,15 +58,54 @@ class Handler:
                 reseptilista += "</ul>\n"
                 return {'reseptilista': reseptilista, 'status': ''}
         elif os.environ['REQUEST_METHOD'] == 'POST':
-            nimi = self.form.getvalue("nimi")
+            if resepti_id is None:
+                nimi = self.form.getvalue("nimi")
 
-            resepti = Resepti.new(nimi=nimi)
+                resepti = Resepti.new(nimi=nimi)
 
-            reseptilista = "<ul>\n"
-            for id in Resepti.load_ids():
-                resepti = Resepti.load_from_database(id)
-                reseptilista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id, resepti.nimi)
-            reseptilista += "</ul>\n"
+                reseptilista = "<ul>\n"
+                for id in Resepti.load_ids():
+                    resepti = Resepti.load_from_database(id)
+                    reseptilista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id, resepti.nimi)
+                reseptilista += "</ul>\n"
 
-            s = "<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id)
-            return {'reseptilista': reseptilista, 'status': s}
+                s = "<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id)
+                return {'reseptilista': reseptilista, 'status': s}
+            else:
+                valmistusohje_unsafe = self.form.getvalue('valmistusohje')
+
+                #
+                # Run the HTML input through the parser which allows only
+                # a safe subset of HTML.
+                #
+                parser = CommentHTMLParser()
+                parser.feed(valmistusohje_unsafe)
+                valmistusohje = parser.output
+
+                resepti = Resepti.load_from_database(resepti_id = resepti_id)
+
+                resepti.valmistusohje = valmistusohje
+                resepti.save()
+
+                kuva_link = ''
+                for kommentti in resepti.kommentit:
+                    kuva_link += "<img src=\"%s/../../kuva/%d\"/>\n" % (self.conf['request_uri'], kommentti.kommentti_id)
+
+                ruokaaineetlista = "<ul>\n"
+                for reseptiruokaaine_id in ReseptiRuokaaine.load_ids(resepti_id = resepti.resepti_id, ruokaaine_id = None):
+                    reseptiruokaaine = ReseptiRuokaaine.load_from_database(reseptiruokaaine_id[0], reseptiruokaaine_id[1])
+                    ruokaaine_link = "<a href=\"%s%s/../../ruokaaine/%d\">%s</a>" % (self.conf['script_name'], self.conf['path_info'], reseptiruokaaine.ruokaaine.ruokaaine_id, reseptiruokaaine.ruokaaine.nimi)
+                    ruokaaineetlista += "<li>%s %d %s</li>\n" % (ruokaaine_link, reseptiruokaaine.maara, reseptiruokaaine.mittayksikko)
+                ruokaaineetlista += "</ul>\n"
+
+                valmistusohje_text = resepti.valmistusohje
+                mode = self.form.getvalue('mode')
+                if mode == 'edit':
+                    valmistusohje_text = """
+<form action="%s%s" method="post">
+  <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
+  <input type="submit" value="submit" />
+</form>
+""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text)
+
+                return {'nimi': resepti.nimi, 'resepti_id': resepti.resepti_id, 'valmistusohje': valmistusohje_text, 'kuva': kuva_link, 'ruokaaineetlista': ruokaaineetlista, 'status': 'Tallennettu.'}

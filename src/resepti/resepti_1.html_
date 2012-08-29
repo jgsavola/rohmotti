@@ -7,9 +7,17 @@
   <body>
     <h1>${nimi}</h1>
 
-    <div class="valmistusohje">${valmistusohje}</p>
+    <div class="ruokaaineetlista">${ruokaaineetlista}</div>
+
+    <div class="valmistusohje">${valmistusohje}</div>
 
     ${kuva}
+
+    <form action="${REQUEST_URI}">
+      <input type="submit" name="mode" value="edit" />
+    </form>
+
+
   </body>
 </html>
 

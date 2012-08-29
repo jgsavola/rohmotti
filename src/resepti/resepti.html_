@@ -1,11 +1,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <style type="text/css">p.status { color: red; background: #e0e0c0; width: 20em }; fieldset { border: none }</style>
+    <link rel="stylesheet" type="text/css" media="all" href="${APP_ROOT_URI}/src/styles/default.css" />
+
     <title>Reseptit</title>
   </head>
   <body>
+    <div class="navigation">${navigation}</div>
+
     <h1>Reseptit</h1>
+
     ${status}
 
     ${reseptilista}

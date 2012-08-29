@@ -12,7 +12,12 @@ from Ruokaaine import Ruokaaine
 class Handler:
     def __init__(self, form, conf):
         self.form = form
-        self.conf = conf
+        self._conf = conf
+
+    @property
+    def conf(self):
+        """Get the configuration"""
+        return self._conf
 
     def render(self):
         path_info = os.environ.get('PATH_INFO', '')
@@ -28,7 +33,10 @@ class Handler:
 
                 kuva_link = ''
                 for kommentti in ruokaaine.kommentit:
-                    kuva_link += "<img src=\"%s/../../kuva/%d\"/>\n" % (self.conf['request_uri'], kommentti.kommentti_id)
+                    kuva_link += "<img src=\"%s/../../kuva/%d\" alt=\"%s\" />\n" % (
+                        self.conf['request_uri'],
+                        kommentti.kommentti_id,
+                        cgi.escape(kommentti.teksti))
 
                 return {'nimi': ruokaaine.nimi, 'ruokaaine_id': ruokaaine.ruokaaine_id, 'kuva': kuva_link}
             else:

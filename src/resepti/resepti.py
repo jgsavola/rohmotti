@@ -7,6 +7,7 @@ import re
 import psycopg2
 import json
 import cgi
+import textwrap
 from Resepti import Resepti
 from ReseptiRuokaaine import ReseptiRuokaaine
 from html_parser import CommentHTMLParser
@@ -32,24 +33,23 @@ class Handler:
                 for kommentti in resepti.kommentit:
                     kuva_link += "<img src=\"%s/../../kuva/%d\"/>\n" % (self.conf['request_uri'], kommentti.kommentti_id)
 
-                ruokaaineetlista = "<ul>\n"
-                for reseptiruokaaine_id in ReseptiRuokaaine.load_ids(resepti_id = resepti.resepti_id, ruokaaine_id = None):
-                    reseptiruokaaine = ReseptiRuokaaine.load_from_database(reseptiruokaaine_id[0], reseptiruokaaine_id[1])
-                    ruokaaine_link = "<a href=\"%s/../../ruokaaine/%d\">%s</a>" % (self.conf['request_uri'], reseptiruokaaine.ruokaaine.ruokaaine_id, reseptiruokaaine.ruokaaine.nimi)
-                    ruokaaineetlista += "<li>%s %d %s</li>\n" % (ruokaaine_link, reseptiruokaaine.maara, reseptiruokaaine.mittayksikko)
-                ruokaaineetlista += "</ul>\n"
+                ruokaaineetlista = self.create_ruokaaineet_list(resepti_id)
 
                 valmistusohje_text = resepti.valmistusohje
                 mode = self.form.getvalue('mode')
                 if mode == 'edit':
-                    valmistusohje_text = """
-<form action="%s%s" method="post">
-  <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
-  <input type="submit" value="submit" />
-</form>
-""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text)
+                    valmistusohje_text = textwrap.dedent("""\
+                        <form action="%s%s" method="post">
+                            <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
+                            <input type="submit" value="submit" />
+                        </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
 
-                return {'nimi': resepti.nimi, 'resepti_id': resepti.resepti_id, 'valmistusohje': valmistusohje_text, 'kuva': kuva_link, 'ruokaaineetlista': ruokaaineetlista}
+                return { 'nimi': resepti.nimi,
+                         'resepti_id': resepti.resepti_id,
+                         'valmistusohje': valmistusohje_text,
+                         'kuva': kuva_link,
+                         'ruokaaineetlista': ruokaaineetlista,
+                         'status': '' }
             else:
                 reseptilista = "<ul>\n"
                 for id in Resepti.load_ids():
@@ -91,21 +91,42 @@ class Handler:
                 for kommentti in resepti.kommentit:
                     kuva_link += "<img src=\"%s/../../kuva/%d\"/>\n" % (self.conf['request_uri'], kommentti.kommentti_id)
 
-                ruokaaineetlista = "<ul>\n"
-                for reseptiruokaaine_id in ReseptiRuokaaine.load_ids(resepti_id = resepti.resepti_id, ruokaaine_id = None):
-                    reseptiruokaaine = ReseptiRuokaaine.load_from_database(reseptiruokaaine_id[0], reseptiruokaaine_id[1])
-                    ruokaaine_link = "<a href=\"%s%s/../../ruokaaine/%d\">%s</a>" % (self.conf['script_name'], self.conf['path_info'], reseptiruokaaine.ruokaaine.ruokaaine_id, reseptiruokaaine.ruokaaine.nimi)
-                    ruokaaineetlista += "<li>%s %d %s</li>\n" % (ruokaaine_link, reseptiruokaaine.maara, reseptiruokaaine.mittayksikko)
-                ruokaaineetlista += "</ul>\n"
+                ruokaaineetlista = self.create_ruokaaineet_list(resepti_id)
 
                 valmistusohje_text = resepti.valmistusohje
                 mode = self.form.getvalue('mode')
                 if mode == 'edit':
-                    valmistusohje_text = """
-<form action="%s%s" method="post">
-  <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
-  <input type="submit" value="submit" />
-</form>
-""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text)
+                    valmistusohje_text = textwrap.dedent("""\
+                        <form action="%s%s" method="post">
+                            <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
+                            <input type="submit" value="submit" />
+                        </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
 
-                return {'nimi': resepti.nimi, 'resepti_id': resepti.resepti_id, 'valmistusohje': valmistusohje_text, 'kuva': kuva_link, 'ruokaaineetlista': ruokaaineetlista, 'status': 'Tallennettu.'}
+                return { 'nimi': resepti.nimi,
+                         'resepti_id': resepti.resepti_id,
+                         'valmistusohje': valmistusohje_text,
+                         'kuva': kuva_link,
+                         'ruokaaineetlista': ruokaaineetlista,
+                         'status': '<p class="status">Tallennettu.</p>'}
+
+    def create_ruokaaineet_list(self, resepti_id):
+        items = []
+
+        items.append('<ul>')
+
+        for reseptiruokaaine_id in ReseptiRuokaaine.load_ids(resepti_id = resepti_id, ruokaaine_id = None):
+            reseptiruokaaine = ReseptiRuokaaine.load_from_database(reseptiruokaaine_id[0], reseptiruokaaine_id[1])
+            ruokaaine_link = ("<a href=\"%s%s/../../ruokaaine/%d\">%s</a>" %
+                              (self.conf['script_name'],
+                               self.conf['path_info'],
+                               reseptiruokaaine.ruokaaine.ruokaaine_id,
+                               cgi.escape(reseptiruokaaine.ruokaaine.nimi)))
+
+            items.append("<li>%s %d %s</li>\n" %
+                         (ruokaaine_link,
+                          reseptiruokaaine.maara,
+                          cgi.escape(reseptiruokaaine.mittayksikko)))
+
+        items.append('</ul>')
+
+        return '\n'.join(items)

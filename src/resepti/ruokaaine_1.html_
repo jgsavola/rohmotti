@@ -1,9 +1,13 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" media="all" href="${APP_ROOT_URI}/src/styles/default.css" />
+
     <title>${nimi}</title>
   </head>
   <body>
+    ${navigation}
+
     <h1>Ruokaaine: ${nimi}</h1>
 
     ${ruokaaine_id}

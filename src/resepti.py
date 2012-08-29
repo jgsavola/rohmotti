@@ -63,13 +63,17 @@ def main():
     debug = form.getvalue('debug')
 
     script_name = os.environ.get('SCRIPT_NAME', '')
+    app_root_uri = re.sub(r'/src/resepti.py$', '', script_name)
     path_info = os.environ.get('PATH_INFO', '')
     request_uri = os.environ.get('REQUEST_URI', '')
     #module_to_load = re.sub(r'^/([^/]+).*', r'\1', path_info)
     module_to_load = get_handler_name()
 
     
-    conf = {'script_name': script_name, 'path_info': path_info, 'request_uri': request_uri}
+    conf = { 'script_name': script_name,
+             'app_root_uri': app_root_uri,
+             'path_info': path_info,
+             'request_uri': request_uri}
 
     html_template_filename = get_html_template_filename()
     if html_template_filename is not None:
@@ -85,7 +89,18 @@ def main():
     module = import_module(module_to_load)
     handler = module.Handler(form, conf)
 
-    render_dict = { 'REQUEST_URI': request_uri }
+    navigation = """\
+        <span class="navigation">
+            <ul class="navigation">
+                <li class="navigation"><a href="%(script_name)s/resepti">Reseptit</a></li>
+                <li class="navigation"><a href="%(script_name)s/ruokaaine">Ruoka-aineet</a></li>
+            </ul>
+        </span>""" % conf
+
+    render_dict = { 'REQUEST_URI': request_uri,
+                    'APP_ROOT_URI': app_root_uri,
+                    'navigation': navigation
+                    }
 
     render_dict.update(handler.render())
 

@@ -1,23 +1,26 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" media="all" href="${APP_ROOT_URI}/src/styles/default.css" />
+
     <title>${nimi}</title>
-    <style type="text/css">.valmistusohje { margin-left:20px; width: 40em; background: #E0E0E0 }</style>
   </head>
   <body>
+    ${navigation}
+
     <h1>${nimi}</h1>
+
+    <form action="${REQUEST_URI}">
+      <input type="submit" name="mode" value="edit" />
+    </form>
+
+    ${status}
 
     <div class="ruokaaineetlista">${ruokaaineetlista}</div>
 
     <div class="valmistusohje">${valmistusohje}</div>
 
     ${kuva}
-
-    <form action="${REQUEST_URI}">
-      <input type="submit" name="mode" value="edit" />
-    </form>
-
-
   </body>
 </html>
 

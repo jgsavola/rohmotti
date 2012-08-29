@@ -62,13 +62,14 @@ def main():
 
     debug = form.getvalue('debug')
 
+    script_name = os.environ.get('SCRIPT_NAME', '')
     path_info = os.environ.get('PATH_INFO', '')
     request_uri = os.environ.get('REQUEST_URI', '')
     #module_to_load = re.sub(r'^/([^/]+).*', r'\1', path_info)
     module_to_load = get_handler_name()
 
     
-    conf = {'path_info': path_info, 'request_uri': request_uri}
+    conf = {'script_name': script_name, 'path_info': path_info, 'request_uri': request_uri}
 
     html_template_filename = get_html_template_filename()
     if html_template_filename is not None:

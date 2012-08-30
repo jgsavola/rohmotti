@@ -45,10 +45,10 @@ class Handler:
 
                 parameters = {'nimi': ruokaaine.nimi, 'ruokaaine_id': ruokaaine.ruokaaine_id, 'kuva': kuva_link}
             else:
-                ruokaainelista = "<ul>\n"
+                ruokaainelista = "<ul class=\"ruokaainelista\">\n"
                 for id in Ruokaaine.load_ids():
                     ruokaaine = Ruokaaine.load_from_database(id)
-                    ruokaainelista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, ruokaaine.ruokaaine_id, ruokaaine.nimi)
+                    ruokaainelista += "<li class=\"ruokaainelista\"><a href=\"%s/%d\">%s</a></li>\n" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, cgi.escape(ruokaaine.nimi))
                 ruokaainelista += "</ul>\n"
                 parameters = {'ruokaainelista': ruokaainelista, 'status': ''}
         elif os.environ['REQUEST_METHOD'] == 'POST':
@@ -59,7 +59,7 @@ class Handler:
             ruokaainelista = "<ul>\n"
             for id in Ruokaaine.load_ids():
                 ruokaaine = Ruokaaine.load_from_database(id)
-                ruokaainelista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, ruokaaine.ruokaaine_id, ruokaaine.nimi)
+                ruokaainelista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, ruokaaine.ruokaaine_id, cgi.escape(ruokaaine.nimi))
             ruokaainelista += "</ul>\n"
 
             s = "<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, ruokaaine.ruokaaine_id)

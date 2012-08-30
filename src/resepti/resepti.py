@@ -36,7 +36,7 @@ class Handler:
 
                 kuva_link = ''
                 for kommentti in resepti.kommentit:
-                    kuva_link += "<img src=\"%s/../../kuva/%d\"/>\n" % (self.conf['request_uri'], kommentti.kommentti_id)
+                    kuva_link += "<img src=\"%s/../../kuva/%d\" />\n" % (self.conf['request_uri'], kommentti.kommentti_id)
 
                 ruokaaineetlista = self.create_ruokaaineet_list(resepti_id)
 
@@ -56,10 +56,10 @@ class Handler:
                                'ruokaaineetlista': ruokaaineetlista,
                                'status': '' }
             else:
-                reseptilista = "<ul>\n"
+                reseptilista = "<ul class=\"ruokaainelista\">\n"
                 for id in Resepti.load_ids():
                     resepti = Resepti.load_from_database(id)
-                    reseptilista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id, resepti.nimi)
+                    reseptilista += "<li><a href=\"%s/%d\">%s</a></li>\n" % (self.conf['request_uri'], resepti.resepti_id, cgi.escape(resepti.nimi))
                 reseptilista += "</ul>\n"
                 parameters = {'reseptilista': reseptilista, 'status': ''}
         elif os.environ['REQUEST_METHOD'] == 'POST':

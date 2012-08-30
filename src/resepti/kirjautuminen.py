@@ -10,6 +10,7 @@ import cgi
 import Cookie
 
 from Henkilo import Henkilo
+import salasana
 
 class Handler:
     def __init__(self, form, conf):
@@ -31,27 +32,40 @@ class Handler:
 
         if os.environ['REQUEST_METHOD'] == 'GET':
             C = Cookie.SimpleCookie()
-            C.load(os.environ.get('HTTP_COOKIE'))
+            C.load(os.environ.get('HTTP_COOKIE', ''))
             try:
                 henkilo_id = C["henkilo_id"]
                 parameters = { 'status': '<p class="status">Tuttu henkilö %d</p>' % (int(henkilo_id.value)) }
             except KeyError:
                 parameters = { 'status': '<p class="status">KeyError</p>' }
         elif os.environ['REQUEST_METHOD'] == 'POST':
-            tunnus = self.form.getvalue("tunnus")
-            salasana = self.form.getvalue("salasana")
+            tunnus_input = self.form.getvalue("tunnus")
+            salasana_input = self.form.getvalue("salasana")
 
-            henkilo = Henkilo.load_from_database(tunnus=tunnus)
-            if henkilo is None:
-                parameters = { 'status': '<p class="status">Tunnus "%s" on tuntematon<p>' % (cgi.escape(tunnus)) }
-            elif salasana == henkilo.salasana:
-                parameters = { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
+            if tunnus_input is None or salasana_input is None:
+                parameters = { 'status': '<p class="status">Anna tunnus ja salasana!</p>' }
+                return [ headers, parameters ]
 
-                C = Cookie.SimpleCookie()
-                C["henkilo_id"] = henkilo.henkilo_id
+            henkilo = Henkilo.load_from_database(tunnus=tunnus_input)
+            if henkilo is not None:
+                #
+                # Ota suola tietokannassa olevasta salasanasta ja aja
+                # hajautusfunktion läpi.
+                #
+                suola = salasana.get_salt_from_hash(henkilo.salasana)
+                salasana_hash = salasana.hash_password(salasana_input, suola)
+                if salasana_hash == henkilo.salasana:
+                    parameters = { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
+                    C = Cookie.SimpleCookie()
+                    C["henkilo_id"] = henkilo.henkilo_id
 
-                headers.append(C.output())
-            else:
-                parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
+                    headers.append(C.output())
+
+                    #
+                    # Kaikki OK!
+                    #
+                    return [ headers, parameters ]
+
+            parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
 
         return [ headers, parameters ]

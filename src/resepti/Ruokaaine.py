@@ -39,6 +39,6 @@ class Ruokaaine(DatabaseObject):
     @classmethod
     def load_ids(cls):
         cur = cls.conn.cursor()
-        cur.execute("SELECT ruokaaine_id FROM reseptiohjelma.ruokaaine")
+        cur.execute("SELECT ruokaaine_id FROM reseptiohjelma.ruokaaine ORDER BY nimi, ruokaaine_id")
         for row in cur.fetchall():
             yield row[0]

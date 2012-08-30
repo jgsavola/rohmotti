@@ -41,7 +41,7 @@ class Resepti(DatabaseObject):
     @classmethod
     def load_ids(cls):
         cur = cls.conn.cursor()
-        cur.execute("SELECT resepti_id FROM reseptiohjelma.resepti")
+        cur.execute("SELECT resepti_id FROM reseptiohjelma.resepti ORDER BY nimi, resepti_id")
         for row in cur.fetchall():
             yield row[0]
 

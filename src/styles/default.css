@@ -18,6 +18,10 @@ li.navigation {
     display: inline
 }
 
+ul.ruokaainelista {
+    list-style: none
+}
+
 span.navigation {
     background-color: #000000; /*A basic background color is set incase the image will not load*/
 }

@@ -22,6 +22,11 @@ class Handler:
     def render(self):
         path_info = os.environ.get('PATH_INFO', '')
 
+        headers = []
+        headers.append('Content-Type: text/html; charset=UTF-8')
+
+        parameters = {}
+
         ruokaaine_id = None
         m = re.match(r'.*/(\d+)', path_info)
         if m:
@@ -38,14 +43,14 @@ class Handler:
                         kommentti.kommentti_id,
                         cgi.escape(kommentti.teksti))
 
-                return {'nimi': ruokaaine.nimi, 'ruokaaine_id': ruokaaine.ruokaaine_id, 'kuva': kuva_link}
+                parameters = {'nimi': ruokaaine.nimi, 'ruokaaine_id': ruokaaine.ruokaaine_id, 'kuva': kuva_link}
             else:
                 ruokaainelista = "<ul>\n"
                 for id in Ruokaaine.load_ids():
                     ruokaaine = Ruokaaine.load_from_database(id)
                     ruokaainelista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, ruokaaine.ruokaaine_id, ruokaaine.nimi)
                 ruokaainelista += "</ul>\n"
-                return {'ruokaainelista': ruokaainelista, 'status': ''}
+                parameters = {'ruokaainelista': ruokaainelista, 'status': ''}
         elif os.environ['REQUEST_METHOD'] == 'POST':
             nimi = self.form.getvalue("nimi")
 
@@ -58,4 +63,6 @@ class Handler:
             ruokaainelista += "</ul>\n"
 
             s = "<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" % (self.conf['request_uri'], ruokaaine.ruokaaine_id, ruokaaine.ruokaaine_id)
-            return {'ruokaainelista': ruokaainelista, 'status': s}
+            parameters = {'ruokaainelista': ruokaainelista, 'status': s}
+
+        return [ headers, parameters ]

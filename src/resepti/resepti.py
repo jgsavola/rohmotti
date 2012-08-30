@@ -20,6 +20,11 @@ class Handler:
     def render(self):
         path_info = os.environ.get('PATH_INFO', '')
 
+        headers = []
+        headers.append('Content-Type: text/html; charset=UTF-8')
+
+        parameters = {}
+
         resepti_id = None
         m = re.match(r'.*/(\d+)', path_info)
         if m:
@@ -44,19 +49,19 @@ class Handler:
                             <input type="submit" value="submit" />
                         </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
 
-                return { 'nimi': resepti.nimi,
-                         'resepti_id': resepti.resepti_id,
-                         'valmistusohje': valmistusohje_text,
-                         'kuva': kuva_link,
-                         'ruokaaineetlista': ruokaaineetlista,
-                         'status': '' }
+                parameters = { 'nimi': resepti.nimi,
+                               'resepti_id': resepti.resepti_id,
+                               'valmistusohje': valmistusohje_text,
+                               'kuva': kuva_link,
+                               'ruokaaineetlista': ruokaaineetlista,
+                               'status': '' }
             else:
                 reseptilista = "<ul>\n"
                 for id in Resepti.load_ids():
                     resepti = Resepti.load_from_database(id)
                     reseptilista += "<li><a href=\"%s/%d\">%d</a> %s</li>\n" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id, resepti.nimi)
                 reseptilista += "</ul>\n"
-                return {'reseptilista': reseptilista, 'status': ''}
+                parameters = {'reseptilista': reseptilista, 'status': ''}
         elif os.environ['REQUEST_METHOD'] == 'POST':
             if resepti_id is None:
                 nimi = self.form.getvalue("nimi")
@@ -70,7 +75,7 @@ class Handler:
                 reseptilista += "</ul>\n"
 
                 s = "<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" % (self.conf['request_uri'], resepti.resepti_id, resepti.resepti_id)
-                return {'reseptilista': reseptilista, 'status': s}
+                parameters = {'reseptilista': reseptilista, 'status': s}
             else:
                 valmistusohje_unsafe = self.form.getvalue('valmistusohje')
 
@@ -102,12 +107,14 @@ class Handler:
                             <input type="submit" value="submit" />
                         </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
 
-                return { 'nimi': resepti.nimi,
-                         'resepti_id': resepti.resepti_id,
-                         'valmistusohje': valmistusohje_text,
-                         'kuva': kuva_link,
-                         'ruokaaineetlista': ruokaaineetlista,
-                         'status': '<p class="status">Tallennettu.</p>'}
+                parameters = { 'nimi': resepti.nimi,
+                               'resepti_id': resepti.resepti_id,
+                               'valmistusohje': valmistusohje_text,
+                               'kuva': kuva_link,
+                               'ruokaaineetlista': ruokaaineetlista,
+                               'status': '<p class="status">Tallennettu.</p>'}
+
+        return [ headers, parameters ]
 
     def create_ruokaaineet_list(self, resepti_id):
         items = []

@@ -65,7 +65,7 @@ def main():
     debug = form.getvalue('debug')
 
     script_name = os.environ.get('SCRIPT_NAME', '')
-    app_root_uri = re.sub(r'/src/resepti.py$', '', script_name)
+    app_root_uri = re.sub(r'/src/rohmotti.py$', '', script_name)
     path_info = os.environ.get('PATH_INFO', '')
     request_uri = os.environ.get('REQUEST_URI', '')
     #module_to_load = re.sub(r'^/([^/]+).*', r'\1', path_info)

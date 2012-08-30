@@ -24,24 +24,34 @@ class Handler:
     def render(self):
         path_info = os.environ.get('PATH_INFO', '')
 
+        headers = []
+        headers.append('Content-Type: text/html; charset=UTF-8')
+
+        parameters = {}
+
         if os.environ['REQUEST_METHOD'] == 'GET':
-            return { }
+            C = Cookie.SimpleCookie()
+            C.load(os.environ.get('HTTP_COOKIE'))
+            try:
+                henkilo_id = C["henkilo_id"]
+                parameters = { 'status': '<p class="status">Tuttu henkilö %d</p>' % (int(henkilo_id.value)) }
+            except KeyError:
+                parameters = { 'status': '<p class="status">KeyError</p>' }
         elif os.environ['REQUEST_METHOD'] == 'POST':
             tunnus = self.form.getvalue("tunnus")
             salasana = self.form.getvalue("salasana")
 
             henkilo = Henkilo.load_from_database(tunnus=tunnus)
             if henkilo is None:
-                return { 'status': '<p class="status">Tunnus "%s" on tuntematon<p>' % (cgi.escape(tunnus)) }
+                parameters = { 'status': '<p class="status">Tunnus "%s" on tuntematon<p>' % (cgi.escape(tunnus)) }
+            elif salasana == henkilo.salasana:
+                parameters = { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
 
-            if salasana == henkilo.salasana:
-                return { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
                 C = Cookie.SimpleCookie()
                 C["henkilo_id"] = henkilo.henkilo_id
 
-                sys.stdout.write("Content-Type: text/html; charset=UTF-8\r\n")
-                sys.stdout.write(C.output())
-                sys.stdout.write("\r\n\r\n")
-
+                headers.append(C.output())
             else:
-                return { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
+                parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
+
+        return [ headers, parameters ]

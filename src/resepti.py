@@ -78,11 +78,6 @@ def main():
              'request_uri': request_uri}
 
     html_template_filename = get_html_template_filename()
-    if html_template_filename is not None:
-        print "Content-Type: text/html; charset=UTF-8\r\n\r\n"
-
-        if debug:
-            print cgi.print_environ()
 
     # print "path_info: %s" % (path_info)
     # print "handler_name: %s" % (module_to_load)
@@ -104,7 +99,15 @@ def main():
                     'navigation': navigation
                     }
 
-    render_dict.update(handler.render())
+    handler_return = handler.render()
+
+    render_dict.update(handler_return[1])
+
+    sys.stdout.write('\r\n'.join(handler_return[0]) + '\r\n\r\n')
+
+    if html_template_filename is not None:
+        if debug:
+            print cgi.print_environ()
 
     if html_template_filename is not None:
         f = open(get_html_template_filename(), 'r')

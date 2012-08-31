@@ -74,48 +74,57 @@ class Handler:
             return True
 
         if action_input == 'logout':
-            if self.sessio is None:
-                #
-                # Istuntoa ei ole, ei tehdä mitään.
-                #
-                self.parameters = { 'status': '<p class="status">OK</p>' }
-                return True
+            return self.handle_logout()
+        elif action_input == 'login':
+            return self.handle_login()
 
+        return True
+
+    def handle_logout(self):
+        if self.sessio is None:
+            #
+            # Istuntoa ei ole, ei tehdä mitään.
+            #
+            self.parameters = { 'status': '<p class="status">OK</p>' }
+        else:
+            #
+            # Istunto on olemassa, palautetaan evästeenpoistoeväste.
+            #
             C = self.sessio.delete_cookie()
             self.headers.append(C.output())
             self.parameters = { 'status': '<p class="status">Uloskirjautuminen tehty.</p>' }
 
+        return True
+
+    def handle_login(self):
+        tunnus_input = self.form.getvalue("tunnus")
+        salasana_input = self.form.getvalue("salasana")
+
+        if tunnus_input is None or salasana_input is None:
+            self.parameters = { 'status': '<p class="status">Anna tunnus ja salasana!</p>' }
+
             return True
-        elif action_input == 'login':
-            tunnus_input = self.form.getvalue("tunnus")
-            salasana_input = self.form.getvalue("salasana")
 
-            if tunnus_input is None or salasana_input is None:
-                self.parameters = { 'status': '<p class="status">Anna tunnus ja salasana!</p>' }
+        henkilo = Henkilo.load_from_database(tunnus=tunnus_input)
+        if henkilo is not None:
+            #
+            # Ota suola tietokannassa olevasta salasanasta ja aja
+            # hajautusfunktion läpi.
+            #
+            suola = salasana.get_salt_from_hash(henkilo.salasana)
+            salasana_hash = salasana.hash_password(salasana_input, suola)
+            if salasana_hash == henkilo.salasana:
+                self.parameters = { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
 
+                timestamp = int(math.floor(time.time()))
+
+                self.sessio = Sessio(henkilo_id=henkilo.henkilo_id, start_timestamp=timestamp, remote_addr=self.conf['effective_remote_addr'])
+                self.headers.append(self.sessio.create_cookie().output())
+
+                #
+                # Kaikki OK!
+                #
                 return True
 
-            henkilo = Henkilo.load_from_database(tunnus=tunnus_input)
-            if henkilo is not None:
-                #
-                # Ota suola tietokannassa olevasta salasanasta ja aja
-                # hajautusfunktion läpi.
-                #
-                suola = salasana.get_salt_from_hash(henkilo.salasana)
-                salasana_hash = salasana.hash_password(salasana_input, suola)
-                if salasana_hash == henkilo.salasana:
-                    self.parameters = { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
+        self.parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
 
-                    timestamp = int(math.floor(time.time()))
-
-                    self.sessio = Sessio(henkilo_id=henkilo.henkilo_id, start_timestamp=timestamp, remote_addr=self.conf['effective_remote_addr'])
-                    self.headers.append(self.sessio.create_cookie().output())
-
-                    #
-                    # Kaikki OK!
-                    #
-                    return True
-
-            self.parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
-
-        return True

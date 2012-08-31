@@ -11,6 +11,11 @@ class CommentHTMLParser(HTMLParser):
         self.output = ''
         self.ok_tags = dict(map(lambda tag: (tag, True), ok_tags))
 
+    def parse_string(self, source):
+        self.output = ''
+        self.feed(source)
+        return self.output
+
     def handle_starttag(self, tag, attrs):
         if self.ok_tags.get(tag) is None:
             return

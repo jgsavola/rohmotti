@@ -17,12 +17,15 @@ from DatabaseObject import DatabaseObject
 handler_mapping = [[r'^/ruokaaine',        'ruokaaine'],
                    [r'^/resepti',          'resepti'],
                    [r'^/kuva',             'kuva'],
-                   [r'^/kirjautuminen',    'kirjautuminen']]
+                   [r'^/kirjautuminen',    'kirjautuminen'],
+                   [r'^/henkilo',          'henkilo']]
 template_mapping = [[r'^/ruokaaine$',      '/resepti/ruokaaine.html_'],
                     [r'^/ruokaaine/\d+$',  '/resepti/ruokaaine_1.html_'],
                     [r'^/resepti$',        '/resepti/resepti.html_'],
                     [r'^/resepti/\d+$',    '/resepti/resepti_1.html_'],
-                    [r'^/kirjautuminen$',   '/resepti/kirjautuminen.html_'],
+                    [r'^/kirjautuminen$',  '/resepti/kirjautuminen.html_'],
+                    [r'^/henkilo$',        '/resepti/henkilo.html_'],
+                    [r'^/henkilo/\d+$',    '/resepti/henkilo_1.html_'],
                     [r'^/kuva/\d+$',       None]]
 
 def get_handler_name():
@@ -102,6 +105,7 @@ def main():
             <ul class="navigation">
                 <li class="navigation"><a href="%(script_name)s/resepti">Reseptit</a></li>
                 <li class="navigation"><a href="%(script_name)s/ruokaaine">Ruoka-aineet</a></li>
+                <li class="navigation"><a href="%(script_name)s/henkilo">Henkilöt</a></li>
                 <li class="navigation"><a href="%(script_name)s/kirjautuminen">Kirjautuminen</a></li>
             </ul>
         </span>""" % conf

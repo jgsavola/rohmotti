@@ -8,25 +8,63 @@
   <body>
     ${navigation}
 
+    <form action="${REQUEST_URI}" method="post">
+      <input type="hidden" name="action" value="logout" />
+      <input type="submit" value="Uloskirjaudu!" />
+    </form>
+
     <h1>Kirjautuminen</h1>
 
     ${status}
 
-    <form action="${REQUEST_URI}" method="post">
+    <form class="cmxform" action="${REQUEST_URI}" method="post">
       <fieldset>
-	<legend>Anna käyttäjätunnus ja salasana:</legend> 
-	<label for="tunnus">Tunnus</label>
-	<input type="text" name="tunnus" id="tunnus" />
-	<label for="salasana">Salasana</label>
-	<input type="password" name="salasana" id="salasana" />
-	<input type="hidden" name="action" value="login" />
-	<input type="submit" value="Kirjaudu!" />
-     </fieldset>
+	<legend>Anna käyttäjätunnus ja salasana:</legend>
+	<ol>
+	  <li>
+	    <label for="tunnus">Tunnus</label>
+	    <input type="text" name="tunnus" id="tunnus" />
+	  </li>
+	  <li>
+	    <label for="salasana">Salasana</label>
+	    <input type="password" name="salasana" id="salasana" />
+	  </li>
+	  <li>
+	    <input type="submit" value="Kirjaudu!" />
+	  </li>
+	  <input type="hidden" name="action" value="login" />
+	</ol>
+      </fieldset>
     </form>
 
-    <form action="${REQUEST_URI}" method="post">
-      <input type="hidden" name="action" value="logout" />
-      <input type="submit" value="Uloskirjaudu!" />
+    <p><em>Uusi käyttäjä? Täytä allaolevat kentät ja luo itsellesi käyttäjätunnus!</em></p>
+
+    <form class="cmxform" action="${REQUEST_URI}" method="post">
+      <fieldset>
+	<legend>Luo uusi käyttäjätunnus:</legend>
+	<ol>
+	  <li>
+	    <label for="henkilon_nimi">Nimi</label>
+	    <input type="text" name="henkilon_nimi" id="henkilon_nimi" />
+	  </li>
+	  <li>
+	    <label for="tunnus">Käyttäjätunnus</label>
+	    <input type="text" name="tunnus" id="tunnus" />
+	  </li>
+	  <li>
+	    <label for="salasana1">Salasana</label>
+	    <input type="password" name="salasana1" id="salasana1" />
+	  </li>
+	  <li>
+	    <label for="salasana2">Salasana uudelleen</label>
+	    <input type="password" name="salasana2" id="salasana2" />
+	  </li>
+	  <li>
+	    <input type="submit" value="Luo käyttäjä!" />
+	  </li>
+	  <input type="hidden" name="action" value="newuser" />
+	</ol>
+     </fieldset>
     </form>
 
   </body>

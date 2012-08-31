@@ -17,6 +17,7 @@ from Henkilo import Henkilo
 import salasana
 from salaus import Salaus
 from sessio import Sessio
+from html_parser import CommentHTMLParser
 
 class Handler:
     def __init__(self, form, conf):
@@ -69,7 +70,7 @@ class Handler:
 
     def handle_post(self):
         action_input = self.form.getvalue("action")
-        if action_input is None or (action_input != 'login' and action_input != 'logout'):
+        if action_input is None or (action_input != 'login' and action_input != 'logout' and action_input != 'newuser'):
             self.parameters = { 'status': '<p class="status">Virheellinen toiminto.</p>' }
             return True
 
@@ -77,6 +78,8 @@ class Handler:
             return self.handle_logout()
         elif action_input == 'login':
             return self.handle_login()
+        elif action_input == 'newuser':
+            return self.handle_newuser()
 
         return True
 
@@ -128,3 +131,57 @@ class Handler:
 
         self.parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
 
+    def handle_newuser(self):
+        henkilon_nimi_input = self.form.getvalue("henkilon_nimi")
+        tunnus_input = self.form.getvalue("tunnus")
+        salasana1_input = self.form.getvalue("salasana1")
+        salasana2_input = self.form.getvalue("salasana2")
+
+        if (henkilon_nimi_input is None or
+            tunnus_input is None or
+            salasana1_input is None or
+            salasana2_input is None):
+            self.parameters = { 'status': '<p class="status">Ole hyvä ja täytä kaikki kentät!</p>' }
+
+            return True
+
+        #
+        # Siivoa tekstimuotoiset parameterit. Nimissä ja tunnuksissa
+        # ei sallita mitään tageja.
+        #
+        parser = CommentHTMLParser(ok_tags=[])
+
+        henkilon_nimi = parser.parse_string(henkilon_nimi_input)
+        tunnus = parser.parse_string(tunnus_input)
+
+        if salasana1_input != salasana2_input:
+            self.parameters = { 'status': '<p class="status">Salasanat eroavat!</p>' }
+            return True
+
+        henkilo = Henkilo.load_from_database(tunnus=tunnus)
+        if henkilo is not None:
+            self.parameters = { 'status': '<p class="status">Tunnus "%s" on jo käytössä!</p>' % (tunnus) }
+            return True
+
+        #
+        # Tehdään salasanasta hajautussumma.
+        #
+        salasana_hash = salasana.hash_password(salasana1_input)
+
+        #
+        # Tallennetaan henkilo tietokantaan
+        #
+        henkilo = Henkilo.new(nimi=henkilon_nimi, tunnus=tunnus, salasana=salasana_hash)
+
+        #
+        # Luo uusi istunto saman tien.
+        #
+        self.create_new_session(henkilo_id=henkilo.henkilo_id)
+
+        self.parameters = { 'status': '<p class="status">Tunnus luotu, tervetuloa %s!</p>' % (tunnus) }
+        return True
+
+    def create_new_session(self, henkilo_id):
+        timestamp = int(math.floor(time.time()))
+        self.sessio = Sessio(henkilo_id=henkilo_id, start_timestamp=timestamp, remote_addr=self.conf['effective_remote_addr'])
+        self.headers.append(self.sessio.create_cookie().output())

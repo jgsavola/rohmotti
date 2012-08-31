@@ -38,7 +38,7 @@ ul.navigation li a {
     text-decoration: none;
     vertical-align: middle;
     padding: 0 10px;
-    background-image: url(nav-tab-bg.png);
+/*    background-image: url(nav-tab-bg.png); */
     background-color: #000000; /*A basic background color is set incase the image will not load*/
     border: 1px solid #333333;
     border-bottom: none;

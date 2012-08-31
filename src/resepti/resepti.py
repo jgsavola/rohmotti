@@ -83,7 +83,7 @@ class Handler:
                 # Run the HTML input through the parser which allows only
                 # a safe subset of HTML.
                 #
-                parser = CommentHTMLParser()
+                parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
                 parser.feed(valmistusohje_unsafe)
                 valmistusohje = parser.output
 

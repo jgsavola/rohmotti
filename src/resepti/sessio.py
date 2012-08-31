@@ -8,20 +8,22 @@ import math
 from salaus import Salaus
 
 class Sessio:
+    """Yksinkertainen istunnonhallinta-toteutus Rohmutti-sovellusta
+       varten. Istunnon tilaa hallitaan salakirjoitetun evästeen
+       avulla."""
+
     SECRET_KEY = '2M\x93\x9a \x9d\x86zV\x04\xf3?\x08\x8a\xba7'
     salaus = Salaus(SECRET_KEY)
 
     def __init__(self, henkilo_id, start_timestamp, remote_addr):
+        """Luo uusi istunto annetuilla parametreilla."""
+
         self.henkilo_id = henkilo_id
         self.start_timestamp = start_timestamp
         self.remote_addr = remote_addr
 
-    @property
-    def conf(self):
-        """Get the configuration"""
-        return self._conf
-
     def create_cookie(self):
+        """Lue salakirjoitettu ja base64-koodattu eväste."""
         cookie_plaintext = str(self)
 
         C = Cookie.SimpleCookie()
@@ -29,8 +31,21 @@ class Sessio:
 
         return C
 
+    def delete_cookie(self):
+        """Luo vanhentunut eväste, jonka asettamalla käyttäjän eväste häviää."""
+
+        cookie_plaintext = str(self)
+
+        C = Cookie.SimpleCookie()
+        C["rohmotti"] = 'invalid'
+        C["rohmotti"]["expires"] = 0
+
+        return C
+
     @classmethod
     def new_from_cookie(cls, C):
+        """Luo uusi sessio annetusta evästeestä."""
+
         try:
             encrypted_cookie_text = C['rohmotti']
         except KeyError:
@@ -53,6 +68,8 @@ class Sessio:
         return cls(henkilo_id=henkilo_id, start_timestamp=start_timestamp, remote_addr=remote_addr)
 
     def __str__(self):
+        """Luo tekstimuotoinen esitys evästeestä."""
+
         return "id=%d ip=%s start=%d rohmotti" % (self.henkilo_id, self.remote_addr, self.start_timestamp)
 
 

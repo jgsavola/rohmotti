@@ -39,7 +39,7 @@ class Henkilo(DatabaseObject):
     @classmethod
     def new(cls, nimi=None, tunnus=None, salasana=None):
         cur = cls.conn.cursor()
-        cur.execute("INSERT INTO reseptiohjelma.henkilo (nimi, tunnus, salasana) VALUES (%s) RETURNING henkilo_id, nimi, tunnus, salasana", (nimi, tunnus, salasana))
+        cur.execute("INSERT INTO reseptiohjelma.henkilo (nimi, tunnus, salasana) VALUES (%s, %s, %s) RETURNING henkilo_id, nimi, tunnus, salasana", (nimi, tunnus, salasana))
         cls.conn.commit()
 
         row = cur.fetchone()

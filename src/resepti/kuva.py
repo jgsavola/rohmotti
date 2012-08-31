@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import sys
 import os
@@ -24,11 +25,23 @@ class Handler:
 
         if os.environ['REQUEST_METHOD'] == 'GET':
             if kuva_id is not None:
-                print "Content-Type: image/jpeg\n"
-
                 kuva = Kommentti.load_from_database(kommentti_id = kuva_id)
 
-                sys.stdout.write(str(kuva.kuva))
+                #
+                # Koska tietokannassa on aikaleima kuvalle, täytetään
+                # 'Last-Modified'-otsake. Toivottavasti tämä säästää
+                # verkkoliikennettä.
+                #
+                image_timestamp_utc = kuva.aika - kuva.aika.utcoffset()
+
+                data = str(kuva.kuva)
+
+                print "Content-Type: image/jpeg"
+                print "Content-Length: %d" % (len(data))
+                print "Last-Modified: %s" % (image_timestamp_utc.strftime('%a, %d %b %Y %H:%M:%S GMT'))
+                print ""
+
+                sys.stdout.write(data)
 
                 return None
             else:

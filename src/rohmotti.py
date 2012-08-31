@@ -116,6 +116,8 @@ def main():
                     }
 
     handler_return = handler.render()
+    if handler_return is None:
+        return
 
     render_dict.update(handler_return[1])
 

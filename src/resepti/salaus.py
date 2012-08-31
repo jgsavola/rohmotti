@@ -39,7 +39,7 @@ class _RandomBytes:
         pack_string = '!'
         pack_args = []
         for word in self._words:
-            if num_bytes >= word[0]:
+            while num_bytes >= word[0]:
                 pack_string += word[1]
                 pack_args.append(self._random.getrandbits(word[0]*8))
                 num_bytes = num_bytes - word[0]

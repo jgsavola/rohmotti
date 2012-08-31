@@ -89,3 +89,9 @@ class Salaus:
         plaintext = aes.decrypt(ciphertext[self.BLOCK_SIZE:])
 
         return plaintext
+
+if __name__ == "__main__":
+    r = _RandomBytes()
+    print r.get_random_bytes(16)
+    print r.get_random_bytes(17)
+    print r.get_random_bytes(32)

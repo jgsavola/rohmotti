@@ -27,3 +27,14 @@ def generate_random_salt():
        This should be probably enough for salting passwords."""
 
     return binascii.hexlify(struct.pack('!Q', random.getrandbits(64)))
+
+if __name__ == "__main__":
+    plaintext_password = 'jne'
+    hashed_password = hash_password(plaintext_password)
+
+    cmp_hash = hash_password(plaintext_password, salt=get_salt_from_hash(hashed_password))
+
+    if cmp_hash == hashed_password:
+        print "pass!"
+    else:
+        print "fail!"

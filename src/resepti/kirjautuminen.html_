@@ -19,12 +19,13 @@
 	<input type="text" name="tunnus" id="tunnus" />
 	<label for="salasana">Salasana</label>
 	<input type="password" name="salasana" id="salasana" />
+	<input type="hidden" name="action" value="login" />
 	<input type="submit" value="Kirjaudu!" />
      </fieldset>
     </form>
 
-    <form action="${REQUEST_URI}" method="get">
-      <input type="hidden" name="logout" value="1" />
+    <form action="${REQUEST_URI}" method="post">
+      <input type="hidden" name="action" value="logout" />
       <input type="submit" value="Uloskirjaudu!" />
     </form>
 

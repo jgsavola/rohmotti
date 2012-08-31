@@ -20,14 +20,15 @@ class Kommentti(DatabaseObject):
         return kommentti
 
     @classmethod
-    def new(cls, nimi=None):
+    def new(cls, kohde_id=None, teksti=None, kuva=None):
         cur = cls.conn.cursor()
-        cur.execute("INSERT INTO reseptiohjelma.kommentti (nimi) VALUES (%s) RETURNING kommentti_id, nimi", (nimi,))
+        cur.execute("INSERT INTO reseptiohjelma.kommentti (kohde_id, teksti, kuva) VALUES (%s, %s, %s) RETURNING kommentti_id, kohde_id, teksti, kuva, aika",
+                    (kohde_id, teksti, psycopg2.Binary(kuva)))
         cls.conn.commit()
 
         row = cur.fetchone()
 
-        kommentti = Kommentti(row[0], row[1])
+        kommentti = Kommentti(*row)
 
         return kommentti
 

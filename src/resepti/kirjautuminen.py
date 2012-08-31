@@ -44,8 +44,25 @@ class Handler:
             C.load(os.environ.get('HTTP_COOKIE', ''))
             sessio = Sessio.new_from_cookie(C)
 
-            parameters = { 'status': '<p class="status">Tuttu henkilö %s</p>' % (sessio) }
+            if sessio is not None:
+                if self.form.getvalue('logout') is not None:
+                    C['rohmotti']['expires'] = 0
+                    parameters = { 'status': '<p class="status">Uloskirjautuminen tehty.</p>' }
+                    headers.append(C.output())
 
+                    return [ headers, parameters ]
+
+                #
+                # Tarkista, että sessio on validi.
+                #
+                henkilo = Henkilo.load_from_database(sessio.henkilo_id)
+
+                if sessio.remote_addr != self.conf['effective_remote_addr']:
+                    parameters = { 'status': '<p class="status">Session ip-osoite ei täsmää käyttäjän ip-osoitteen kanssa!</p><pre>%s</pre>' % (str(sessio)) }
+                elif henkilo is None:
+                    parameters = { 'status': '<p class="status">Session käyttäjää %d ei löydy tietokannasta!</p>' % (sessio.henkilo_id) }
+                else:
+                    parameters = { 'status': '<p class="status">Tuttu henkilö %s</p>' % (sessio) }
         elif os.environ['REQUEST_METHOD'] == 'POST':
             tunnus_input = self.form.getvalue("tunnus")
             salasana_input = self.form.getvalue("salasana")
@@ -67,7 +84,7 @@ class Handler:
 
                     timestamp = int(math.floor(time.time()))
 
-                    sessio = Sessio(henkilo_id=henkilo.henkilo_id, start_timestamp=timestamp, remote_addr=os.environ.get('REMOTE_ADDR'))
+                    sessio = Sessio(henkilo_id=henkilo.henkilo_id, start_timestamp=timestamp, remote_addr=self.conf['effective_remote_addr'])
                     headers.append(sessio.create_cookie().output())
 
                     #

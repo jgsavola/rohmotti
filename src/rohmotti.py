@@ -70,12 +70,22 @@ def main():
     request_uri = os.environ.get('REQUEST_URI', '')
     #module_to_load = re.sub(r'^/([^/]+).*', r'\1', path_info)
     module_to_load = get_handler_name()
+    remote_addr = os.environ.get('REMOTE_ADDR')
+    http_x_forwarded_for = os.environ.get('HTTP_X_FORWARDED_FOR')
 
+    if http_x_forwarded_for is not None:
+        effective_remote_addr = http_x_forwarded_for
+    else:
+        effective_remote_addr = remote_addr
     
     conf = { 'script_name': script_name,
              'app_root_uri': app_root_uri,
              'path_info': path_info,
-             'request_uri': request_uri}
+             'request_uri': request_uri,
+             'remote_addr': remote_addr,
+             'http_x_forwarded_for': http_x_forwarded_for,
+             'effective_remote_addr': effective_remote_addr
+             }
 
     html_template_filename = get_html_template_filename()
 

@@ -22,5 +22,11 @@
 	<input type="submit" value="Kirjaudu!" />
      </fieldset>
     </form>
+
+    <form action="${REQUEST_URI}" method="get">
+      <input type="hidden" name="logout" value="1" />
+      <input type="submit" value="Uloskirjaudu!" />
+    </form>
+
   </body>
 </html>

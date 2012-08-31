@@ -1,9 +1,28 @@
-.valmistusohje { margin-left:20px; width: 40em; background: #E0E0E0 }
+.valmistusohje {
+    width: 600px;
+    background: #E0E0E0;
+}
+
+.commenttext {
+}
 
 p.status {
     color: red;
     background: #e0e0c0;
     width: 20em }
+
+img {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+div.timestamp {
+    font: 14px/100% Arial, Helvetica, sans-serif;
+    color: #707070;
+    width: 600px;
+    text-align: right;
+    margin-top: 10px;
+}
 
 fieldset { border: none }
 
@@ -23,11 +42,9 @@ ul.ruokaainelista {
 }
 
 span.navigation {
-    background-color: #000000; /*A basic background color is set incase the image will not load*/
-}
-
-span.navigation {
-    display: inline-block
+    background-color: #000000;
+    display: inline-block;
+    width: 600px;
 }
 
 ul.navigation li a {
@@ -37,11 +54,22 @@ ul.navigation li a {
     line-height: 32px;
     text-decoration: none;
     vertical-align: middle;
-    padding: 0 10px;
+    padding: 0 20px;
 /*    background-image: url(nav-tab-bg.png); */
     background-color: #000000; /*A basic background color is set incase the image will not load*/
     border: 1px solid #333333;
     border-bottom: none;
+}
+
+div.commentform {
+    margin-top: 20px
+}
+
+div.comment {
+    width: 600px;
+    border: 1px solid #EEEEEE;
+    border-left: none;
+    border-right: none;
 }
 
 /*

@@ -14,7 +14,8 @@ import cgitb
 from string import Template
 from DatabaseObject import DatabaseObject
 
-handler_mapping = [[r'^/ruokaaine',        'ruokaaine'],
+handler_mapping = [[r'^/ruokaaine$',       'ruokaaine'],
+                   [r'^/ruokaaine/\d+$',   'ruokaaine_1'],
                    [r'^/resepti',          'resepti'],
                    [r'^/kuva',             'kuva'],
                    [r'^/kirjautuminen',    'kirjautuminen'],

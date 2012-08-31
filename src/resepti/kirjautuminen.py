@@ -16,6 +16,7 @@ import math
 from Henkilo import Henkilo
 import salasana
 from salaus import Salaus
+from sessio import Sessio
 
 class Handler:
     def __init__(self, form, conf):
@@ -41,14 +42,9 @@ class Handler:
         if os.environ['REQUEST_METHOD'] == 'GET':
             C = Cookie.SimpleCookie()
             C.load(os.environ.get('HTTP_COOKIE', ''))
-            try:
-                encrypted_cookie_text = C['rohmotti']
-            except KeyError:
-                parameters = { 'status': '<p class="status">KeyError</p>' }
-            else:
-                cookie_text = self.salaus.decrypt(base64.b64decode(encrypted_cookie_text.value))
+            sessio = Sessio.new_from_cookie(C)
 
-                parameters = { 'status': '<p class="status">Tuttu henkilö %s</p>' % (cookie_text) }
+            parameters = { 'status': '<p class="status">Tuttu henkilö %s</p>' % (sessio) }
 
         elif os.environ['REQUEST_METHOD'] == 'POST':
             tunnus_input = self.form.getvalue("tunnus")
@@ -69,16 +65,10 @@ class Handler:
                 if salasana_hash == henkilo.salasana:
                     parameters = { 'status': '<p class="status">Tervetuloa, henkilö %d!</p>' % (henkilo.henkilo_id) }
 
-                    timestamp = math.floor(time.time())
+                    timestamp = int(math.floor(time.time()))
 
-                    today = datetime.datetime.today()
-
-                    cookie_text = "id=%d ip=%s time=%d rohmotti" % (henkilo.henkilo_id, os.environ.get('REMOTE_ADDR'), timestamp)
-
-                    C = Cookie.SimpleCookie()
-                    C["rohmotti"] = base64.b64encode(self.salaus.encrypt(cookie_text))
-
-                    headers.append(C.output())
+                    sessio = Sessio(henkilo_id=henkilo.henkilo_id, start_timestamp=timestamp, remote_addr=os.environ.get('REMOTE_ADDR'))
+                    headers.append(sessio.create_cookie().output())
 
                     #
                     # Kaikki OK!

@@ -10,17 +10,41 @@
 
     <h1>${nimi}</h1>
 
-    <form action="${REQUEST_URI}">
-      <input type="submit" name="mode" value="edit" />
-    </form>
-
     ${status}
 
     <div class="ruokaaineetlista">${ruokaaineetlista}</div>
 
-    <div class="valmistusohje">${valmistusohje}</div>
+    <p><strong>Valmistusohje:</strong></p>
+    ${valmistusohje}
+
+    <form action="${REQUEST_URI}">
+      <input type="submit" name="mode" value="edit" />
+    </form>
 
     ${kuva}
+
+    <div class="commentform">
+      <form class="cmxform" action="${REQUEST_URI}" method="post" enctype="multipart/form-data">
+	<fieldset>
+	  <legend>Lataa kuva:</legend>
+	  <ol>
+	    <li>
+	      <label for="kuva">Kuva</label>
+	      <input type="file" name="kuva" id="kuva" />
+	    </li>
+	    <li>
+	      <label for="teksti">Teksti</label>
+	      <textarea rows="6" cols="60" name="teksti" id="teksti"></textarea>
+	    </li>
+	    <li>
+	      <input type="submit" value="Lähetä!" />
+	    </li>
+	    <input type="hidden" name="action" value="upload" />
+	  </ol>
+	</fieldset>
+      </form>
+    </div>
+
   </body>
 </html>
 

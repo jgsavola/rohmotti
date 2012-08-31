@@ -10,6 +10,7 @@ import cgi
 import textwrap
 from Resepti import Resepti
 from ReseptiRuokaaine import ReseptiRuokaaine
+from Kommentti import Kommentti
 from html_parser import CommentHTMLParser
 
 class Handler:
@@ -18,6 +19,7 @@ class Handler:
         self.conf = conf
 
     def render(self):
+        self.mode = self.form.getvalue('mode')
         path_info = os.environ.get('PATH_INFO', '')
 
         self.headers = []
@@ -25,70 +27,52 @@ class Handler:
 
         self.parameters = {}
 
-        resepti_id = None
+        self.resepti_id = None
         m = re.match(r'.*/(\d+)', path_info)
         if m:
-            resepti_id = m.group(1)
+            self.resepti_id = m.group(1)
 
         if os.environ['REQUEST_METHOD'] == 'GET':
-            resepti = Resepti.load_from_database(resepti_id = resepti_id)
-
-            kuva_link = ''
-            for kommentti in resepti.kommentit:
-                kuva_link += "<img src=\"%s/../../kuva/%d\" />\n" % (self.conf['request_uri'], kommentti.kommentti_id)
-
-            ruokaaineetlista = self.create_ruokaaineet_list(resepti_id)
-
-            valmistusohje_text = resepti.valmistusohje
             mode = self.form.getvalue('mode')
-            if mode == 'edit':
-                valmistusohje_text = textwrap.dedent("""\
-                    <form action="%s%s" method="post">
-                        <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
-                        <input type="submit" value="submit" />
-                    </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
+            self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
 
-            self.parameters.update({ 'nimi': resepti.nimi,
-                                     'resepti_id': resepti.resepti_id,
-                                     'valmistusohje': valmistusohje_text,
-                                     'kuva': kuva_link,
-                                     'ruokaaineetlista': ruokaaineetlista,
-                                     'status': '' })
+            self.render_page()
         elif os.environ['REQUEST_METHOD'] == 'POST':
-            valmistusohje_unsafe = self.form.getvalue('valmistusohje')
+            action = self.form.getvalue('action')
 
-            #
-            # Salli vain turvallisten HTML-tagien käyttö kommenteissa.
-            #
-            parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
-            valmistusohje = parser.parse_string(valmistusohje_unsafe)
+            if action == 'updaterecipe':
+                valmistusohje_unsafe = self.form.getvalue('valmistusohje')
 
-            resepti = Resepti.load_from_database(resepti_id = resepti_id)
+                #
+                # Salli vain turvallisten HTML-tagien käyttö kommenteissa.
+                #
+                parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
+                valmistusohje = parser.parse_string(valmistusohje_unsafe)
 
-            resepti.valmistusohje = valmistusohje
-            resepti.save()
+                self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
 
-            kuva_link = ''
-            for kommentti in resepti.kommentit:
-                kuva_link += "<img src=\"%s/../../kuva/%d\" />\n" % (self.conf['request_uri'], kommentti.kommentti_id)
+                self.resepti.valmistusohje = valmistusohje
+                self.resepti.save()
 
-            ruokaaineetlista = self.create_ruokaaineet_list(resepti_id)
+                status = '<p class="status">Tallennettu.</p>'
 
-            valmistusohje_text = resepti.valmistusohje
-            mode = self.form.getvalue('mode')
-            if mode == 'edit':
-                valmistusohje_text = textwrap.dedent("""\
-                    <form action="%s%s" method="post">
-                        <textarea name="valmistusohje" rows="10" cols="60">%s</textarea>
-                        <input type="submit" value="submit" />
-                    </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
+                self.parameters.update({ 'status': status })
+            elif action == 'upload':
+                teksti_input = self.form.getvalue('teksti')
+                teksti = None
 
-            self.parameters.update({ 'nimi': resepti.nimi,
-                                     'resepti_id': resepti.resepti_id,
-                                     'valmistusohje': valmistusohje_text,
-                                     'kuva': kuva_link,
-                                     'ruokaaineetlista': ruokaaineetlista,
-                                     'status': '<p class="status">Tallennettu.</p>' })
+                if teksti_input is not None:
+                    parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
+                    teksti = parser.parse_string(teksti_input)
+
+                kuva_input = self.form.getvalue('kuva')
+
+                kommentti = Kommentti.new(self.resepti_id, teksti, kuva_input)
+                self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
+
+                self.parameters.update({ 'status': '<p class="status">Uusi kommentti: %d</p>' % (kommentti.kommentti_id) })
+
+            self.render_page()
 
         return [ self.headers, self.parameters ]
 
@@ -113,3 +97,42 @@ class Handler:
         items.append('</ul>')
 
         return '\n'.join(items)
+
+    def render_page(self):
+        kuva_link = ''
+        for kommentti in self.resepti.kommentit:
+            kuva_link += "<div class=\"comment\">"
+            kuva_link += "<div class=\"timestamp\">%s</div>\n" % (kommentti.aika)
+            kuva_link += "<img src=\"%s/../../kuva/%d\" alt=\"%s\" />\n" % (
+                self.conf['request_uri'],
+                kommentti.kommentti_id,
+                '')
+            kuva_link += "<div class=\"commenttext\">%s</div>\n" % (kommentti.teksti)
+            kuva_link += "</div>"
+
+        ruokaaineetlista = self.create_ruokaaineet_list(self.resepti.resepti_id)
+
+        valmistusohje_text = "<div class=\"valmistusohje\">%s</div>" % (self.resepti.valmistusohje)
+        if self.mode == 'edit':
+            valmistusohje_text = textwrap.dedent("""\
+                <form class="cmxform" action="%s%s" method="post">
+                  <fieldset>
+                    <legend></legend>
+                    <ol>
+                      <li>
+                        <textarea name="valmistusohje" rows="10" cols="60" id="valmistusohje">%s</textarea>
+                      </li>
+                      <li>
+                        <input type="submit" value="submit" />
+                      </li>
+                      <input type="hidden" name="action" value="updaterecipe"</input>
+                    </ol>
+                  </fieldset>
+                </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
+
+        self.parameters.update({ 'nimi': self.resepti.nimi,
+                                 'resepti_id': self.resepti.resepti_id,
+                                 'valmistusohje': valmistusohje_text,
+                                 'kuva': kuva_link,
+                                 'ruokaaineetlista': ruokaaineetlista,
+                                 'status': '' })

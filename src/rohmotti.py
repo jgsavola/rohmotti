@@ -16,7 +16,8 @@ from DatabaseObject import DatabaseObject
 
 handler_mapping = [[r'^/ruokaaine$',       'ruokaaine'],
                    [r'^/ruokaaine/\d+$',   'ruokaaine_1'],
-                   [r'^/resepti',          'resepti'],
+                   [r'^/resepti$',         'resepti'],
+                   [r'^/resepti/\d+$',     'resepti_1'],
                    [r'^/kuva',             'kuva'],
                    [r'^/kirjautuminen',    'kirjautuminen'],
                    [r'^/henkilo',          'henkilo']]

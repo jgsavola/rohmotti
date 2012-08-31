@@ -7,6 +7,12 @@ class _RandomBytes:
     """Apuluokka satunnaisen alustusvektorin luomiseen. Vanhassa pgcryptossa
        ei ole modulia Crypto.Random, joten käytä standardikirjastom random-modulia."""
 
+    #
+    # Käytä mahdollisimman isoja sanankokoja satunnaisten bittien
+    # generoimiseen.
+    #
+    _words = [(8, 'Q'), (4, 'I'), (2, 'H'), (1, 'B')]
+
     def __init__(self):
         try:
             from Crypto import Random
@@ -29,16 +35,10 @@ class _RandomBytes:
         """Tätä kömpelöä metodia käytetään, jos pgcrypton
            Crypto.Random.get_random_bytes ei ole olemassa."""
 
-        #
-        # Käytä mahdollisimman isoja sanankokoja satunnaisten bittien
-        # generoimiseen.
-        #
-        words = [(8, 'Q'), (4, 'I'), (2, 'H'), (1, 'B')]
-
         # Käytä big-endian-järjestystä
         pack_string = '!'
         pack_args = []
-        for word in words:
+        for word in self._words:
             if num_bytes >= word[0]:
                 pack_string += word[1]
                 pack_args.append(self._random.getrandbits(word[0]*8))
@@ -48,9 +48,15 @@ class _RandomBytes:
 
         return self._struct.pack(pack_string, *pack_args)
 
-class Sessio:
+class Salaus:
+    """Salakirjoita ja pura AES:n avulla."""
+
     BLOCK_SIZE = 16
+
     def __init__(self, key):
+        """Alusta salausluokka. Salaus tapahtuu annetulla avaimella,
+        jonka pituuden täytyy olla BLOCK_SIZE."""
+
         self.key = key
         self.random_bytes = _RandomBytes()
 

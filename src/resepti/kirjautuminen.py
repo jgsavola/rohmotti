@@ -15,7 +15,6 @@ import math
 
 from Henkilo import Henkilo
 import salasana
-from salaus import Salaus
 from sessio import Sessio
 from html_parser import CommentHTMLParser
 
@@ -23,9 +22,6 @@ class Handler:
     def __init__(self, form, conf):
         self.form = form
         self._conf = conf
-
-        self.secret_key = '2M\x93\x9a \x9d\x86zV\x04\xf3?\x08\x8a\xba7'
-        self.salaus = Salaus(self.secret_key)
 
     @property
     def conf(self):

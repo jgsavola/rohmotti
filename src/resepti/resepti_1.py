@@ -86,8 +86,13 @@ class Handler:
     def render_page(self):
         kuva_link = ''
         for kommentti in self.resepti.kommentit:
+            delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
+                               <input type="hidden" name="method_override" value="DELETE" />
+                               <input type="submit" value="Poista" class="deleteform" />
+                             </form>""" % (self.conf['full_path'], kommentti.kommentti_id)
+
             kuva_link += "<div class=\"comment\">"
-            kuva_link += "<div class=\"timestamp\">%s</div>\n" % (kommentti.aika)
+            kuva_link += "<div class=\"timestamp\">%s %s</div>\n" % (kommentti.aika, delete_form)
             if kommentti.kuva is not None:
                 kuva_link += "<img src=\"%s/kuva/%d\" alt=\"%s\" />\n" % (
                     self.conf['script_name'],

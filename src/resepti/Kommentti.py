@@ -40,3 +40,9 @@ class Kommentti(DatabaseObject):
         cur.execute("SELECT kommentti_id FROM reseptiohjelma.kommentti WHERE kohde_id = %s", (int(kohde_id),))
         for row in cur.fetchall():
             yield row[0]
+
+    @classmethod
+    def delete(cls, kommentti_id):
+        cur = cls.conn.cursor()
+        cur.execute("DELETE FROM reseptiohjelma.kommentti WHERE kommentti_id = %s", (kommentti_id,))
+        cls.conn.commit()

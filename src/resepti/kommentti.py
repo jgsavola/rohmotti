@@ -1,16 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
 import re
-import psycopg2
-import json
 import cgi
-import textwrap
-from Resepti import Resepti
-from Ruokaaine import Ruokaaine
-from ReseptiRuokaaine import ReseptiRuokaaine
 from Kommentti import Kommentti
 from html_parser import CommentHTMLParser
 
@@ -24,7 +16,7 @@ class Handler:
         self.parameters = {}
 
         self.kohde_id = None
-        m = re.match(r'/([^/]+)/(\d+)/kommentti', self.conf['path_info'])
+        m = re.match(r'/([^/]+)/(\d+)/kommentti(/(\d+))?', self.conf['path_info'])
 
         if m is None:
             return
@@ -34,6 +26,7 @@ class Handler:
         if self.kohde_luokka not in ['resepti', 'ruokaaine']:
             # error
             return
+        self.kommentti_id = None if m.group(4) is None else int(m.group(4))
 
         if self.conf['request_method'] == 'GET':
             pass
@@ -57,6 +50,22 @@ class Handler:
                                       self.kohde_luokka,
                                       self.kohde_id,
                                       kommentti.kommentti_id))
+        elif self.conf['request_method'] == 'DELETE':
+            #
+            # Salli DELETE vain yksittäisille kommenteille. Jos
+            # kommentti_id:tä ei ole määritelty polussa, olisi DELETE
+            # tulkittava niin, että kaikki reseptin kommentit halutaan
+            # hävittää.
+            #
+            if self.kommentti_id is not None:
+                Kommentti.delete(kommentti_id=self.kommentti_id)
+
+                self.redirect_after_post("%s/%s/%d?comment_deleted=%d" %
+                                         (self.conf['script_name'],
+                                          self.kohde_luokka,
+                                          self.kohde_id,
+                                          self.kommentti_id))
+
 
         return [ self.headers, self.parameters ]
 

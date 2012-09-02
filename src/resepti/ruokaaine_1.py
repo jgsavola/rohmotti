@@ -42,10 +42,15 @@ class Handler:
     def render_page(self):
         kuva_link = ''
         for kommentti in self.ruokaaine.kommentit:
+            delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
+                               <input type="hidden" name="method_override" value="DELETE" />
+                               <input type="submit" value="Poista" class="deleteform" />
+                             </form>""" % (self.conf['full_path'], kommentti.kommentti_id)
+
             kuva_link += "<div class=\"comment\">"
-            kuva_link += "<div class=\"timestamp\">%s</div>\n" % (kommentti.aika)
-            kuva_link += "<img src=\"%s/../../kuva/%d\" alt=\"%s\" />\n" % (
-                self.conf['request_uri'],
+            kuva_link += "<div class=\"timestamp\">%s %s</div>\n" % (kommentti.aika, delete_form)
+            kuva_link += "<img src=\"%s/kuva/%d\" alt=\"%s\" />\n" % (
+                self.conf['script_name'],
                 kommentti.kommentti_id,
                 '')
             kuva_link += "<div class=\"commenttext\">%s</div>\n" % (kommentti.teksti)

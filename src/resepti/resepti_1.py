@@ -20,7 +20,6 @@ class Handler:
 
     def render(self):
         self.mode = self.form.getvalue('mode')
-        path_info = os.environ.get('PATH_INFO', '')
 
         self.headers = []
         self.headers.append('Content-Type: text/html; charset=UTF-8')
@@ -28,12 +27,11 @@ class Handler:
         self.parameters = {}
 
         self.resepti_id = None
-        m = re.match(r'.*/(\d+)', path_info)
+        m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
             self.resepti_id = m.group(1)
 
         if os.environ['REQUEST_METHOD'] == 'GET':
-            mode = self.form.getvalue('mode')
             self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
 
             self.render_page()
@@ -83,9 +81,8 @@ class Handler:
 
         for reseptiruokaaine_id in ReseptiRuokaaine.load_ids(resepti_id = resepti_id, ruokaaine_id = None):
             reseptiruokaaine = ReseptiRuokaaine.load_from_database(reseptiruokaaine_id[0], reseptiruokaaine_id[1])
-            ruokaaine_link = ("<a href=\"%s%s/../../ruokaaine/%d\">%s</a>" %
+            ruokaaine_link = ("<a href=\"%s/ruokaaine/%d\">%s</a>" %
                               (self.conf['script_name'],
-                               self.conf['path_info'],
                                reseptiruokaaine.ruokaaine.ruokaaine_id,
                                cgi.escape(reseptiruokaaine.ruokaaine.nimi)))
 

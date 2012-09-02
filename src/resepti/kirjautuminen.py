@@ -36,9 +36,9 @@ class Handler:
 
         self.parameters = {}
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
             self.handle_get()
-        elif os.environ['REQUEST_METHOD'] == 'POST':
+        elif self.conf['request_method'] == 'POST':
             self.handle_post()
 
         return [ self.headers, self.parameters ]

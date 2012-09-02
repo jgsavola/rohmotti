@@ -19,8 +19,6 @@ class Handler:
         self.conf = conf
 
     def render(self):
-        self.mode = self.form.getvalue('mode')
-
         self.headers = []
         self.headers.append('Content-Type: text/html; charset=UTF-8')
 
@@ -29,13 +27,15 @@ class Handler:
         self.resepti_id = None
         m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
-            self.resepti_id = m.group(1)
+            self.resepti_id = int(m.group(1))
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
+            self.mode = self.form.getvalue('mode')
+
             self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
 
             self.render_page()
-        elif os.environ['REQUEST_METHOD'] == 'POST':
+        elif self.conf['request_method'] == 'POST':
             action = self.form.getvalue('action')
 
             if action == 'updaterecipe':
@@ -55,6 +55,10 @@ class Handler:
                 self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
 
             self.render_page()
+        elif self.conf['request_method'] == 'DELETE':
+            Resepti.delete(resepti_id=self.resepti_id)
+
+            self.redirect_after_post("%s/resepti?deleted=%d" % (self.conf['script_name'], self.resepti_id))
 
         return [ self.headers, self.parameters ]
 

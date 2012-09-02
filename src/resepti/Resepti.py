@@ -49,3 +49,9 @@ class Resepti(DatabaseObject):
         cur = Resepti.conn.cursor()
         cur.execute("UPDATE resepti SET nimi = %s, valmistusohje = %s WHERE resepti_id = %s", (self.nimi, self.valmistusohje, self.resepti_id))
         Resepti.conn.commit()
+
+    @classmethod
+    def delete(cls, resepti_id):
+        cur = cls.conn.cursor()
+        cur.execute("DELETE FROM reseptiohjelma.resepti WHERE resepti_id = %s", (resepti_id,))
+        cls.conn.commit()

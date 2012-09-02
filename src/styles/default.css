@@ -119,3 +119,22 @@ form.cmxform label {
 form.cmxform fieldset fieldset label {
   margin-left: 123px; /* Width plus 3 (html space) */
 }
+
+/*
+ * http://tips4php.net/2010/08/create-nice-submit-buttons-with-css-and-no-images/
+ */
+input.deleteform {
+    background-color:#00A400;
+    color: #ffffff;
+    border-width:1px;
+    border-color:#000000;
+    display: inline;
+}
+
+input.deleteform:hover {
+    background-color:#00CC00;
+}
+
+form.deleteform {
+    display: inline;
+}

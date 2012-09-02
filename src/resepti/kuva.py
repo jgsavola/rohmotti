@@ -23,7 +23,7 @@ class Handler:
         if m:
             kuva_id = m.group(1)
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
             if kuva_id is not None:
                 kuva = Kommentti.load_from_database(kommentti_id = kuva_id)
 
@@ -46,5 +46,5 @@ class Handler:
                 return None
             else:
                 return None
-        elif os.environ['REQUEST_METHOD'] == 'POST':
+        elif self.conf['request_method'] == 'POST':
             return None

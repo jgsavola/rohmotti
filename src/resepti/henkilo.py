@@ -32,7 +32,7 @@ class Handler:
         if m:
             henkilo_id = m.group(1)
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
             if henkilo_id is not None:
                 henkilo = Henkilo.load_from_database(henkilo_id = henkilo_id)
 
@@ -54,7 +54,7 @@ class Handler:
                     henkilolista += "<li class=\"henkilolista\"><a href=\"%s/%d\">%s</a></li>\n" % (self.conf['request_uri'], henkilo.henkilo_id, cgi.escape(henkilo.nimi))
                 henkilolista += "</ul>\n"
                 parameters = {'henkilolista': henkilolista, 'status': ''}
-        elif os.environ['REQUEST_METHOD'] == 'POST':
+        elif self.conf['request_method'] == 'POST':
             nimi = self.form.getvalue("nimi")
 
             henkilo = Henkilo.new(nimi=nimi)

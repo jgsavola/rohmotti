@@ -35,9 +35,9 @@ class Handler:
             # error
             return
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
             pass
-        elif os.environ['REQUEST_METHOD'] == 'POST':
+        elif self.conf['request_method'] == 'POST':
             teksti_input = self.form.getvalue('teksti')
             teksti = None
 

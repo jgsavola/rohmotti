@@ -27,9 +27,9 @@ class Handler:
 
         self.parameters = {}
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
             self.render_page()
-        elif os.environ['REQUEST_METHOD'] == 'POST':
+        elif self.conf['request_method'] == 'POST':
             nimi = self.form.getvalue("nimi")
 
             ruokaaine = Ruokaaine.new(nimi=nimi)

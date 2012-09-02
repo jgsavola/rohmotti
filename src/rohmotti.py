@@ -71,7 +71,16 @@ def main():
     #
     DatabaseObject.setDatabaseConnection(conn)
 
-    debug = form.getvalue('debug')
+    #
+    # PUT, DELETE -tukikikka: jos lomakkeessa on 'method_override'
+    # arvolla 'PUT' tai 'DELETE' ja käytetty kyselymetodi on POST,
+    # tulkitse kyselymetodiksi 'method_override':n arvo.
+    #
+    request_method = os.environ.get('REQUEST_METHOD')
+    if request_method == 'POST':
+        method_override = form.getvalue('method_override')
+        if method_override in ['PUT', 'DELETE']:
+            request_method = method_override
 
     script_name = os.environ.get('SCRIPT_NAME', '')
     app_root_uri = re.sub(r'/src/rohmotti.py$', '', script_name)
@@ -86,7 +95,8 @@ def main():
     else:
         effective_remote_addr = remote_addr
 
-    conf = { 'script_name': script_name,
+    conf = { 'request_method': request_method,
+             'script_name': script_name,
              'app_root_uri': app_root_uri,
              'path_info': path_info,
              'full_path': full_path,
@@ -139,6 +149,12 @@ def main():
     render_dict.update(handler_return[1])
 
     sys.stdout.write('\r\n'.join(handler_return[0]) + '\r\n\r\n')
+
+    debug = False
+    try:
+        debug = form.getvalue('debug')
+    except Exception:
+        pass
 
     if html_template_filename is not None:
         if debug:

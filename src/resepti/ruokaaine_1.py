@@ -32,7 +32,7 @@ class Handler:
         if m:
             ruokaaine_id = m.group(1)
 
-        if os.environ['REQUEST_METHOD'] == 'GET':
+        if self.conf['request_method'] == 'GET':
             self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id = ruokaaine_id)
 
             self.render_page()

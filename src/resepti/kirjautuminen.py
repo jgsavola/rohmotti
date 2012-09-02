@@ -29,14 +29,12 @@ class Handler:
         return self._conf
 
     def render(self):
+        self.sessio = self.conf['sessio']
+
         self.headers = []
         self.headers.append('Content-Type: text/html; charset=UTF-8')
 
         self.parameters = {}
-
-        C = Cookie.SimpleCookie()
-        C.load(os.environ.get('HTTP_COOKIE', ''))
-        self.sessio = Sessio.new_from_cookie(C)
 
         if os.environ['REQUEST_METHOD'] == 'GET':
             self.handle_get()

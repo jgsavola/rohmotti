@@ -11,8 +11,10 @@ import psycopg2
 import json
 import cgi
 import cgitb
+import Cookie
 from string import Template
 from DatabaseObject import DatabaseObject
+from sessio import Sessio
 
 handler_mapping = [[r'^/ruokaaine$',       'ruokaaine'],
                    [r'^/ruokaaine/\d+$',   'ruokaaine_1'],
@@ -98,6 +100,11 @@ def main():
     # print "path_info: %s" % (path_info)
     # print "handler_name: %s" % (module_to_load)
     # print "template_name: %s" % (get_html_template_filename())
+
+    C = Cookie.SimpleCookie()
+    C.load(os.environ.get('HTTP_COOKIE', ''))
+    sessio = Sessio.new_from_cookie(C)
+    conf['sessio'] = sessio
 
     module = import_module(module_to_load)
     handler = module.Handler(form, conf)

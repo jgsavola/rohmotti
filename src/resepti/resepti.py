@@ -18,7 +18,7 @@ class Handler:
         self.conf = conf
 
     def render(self):
-        path_info = os.environ.get('PATH_INFO', '')
+        self.sessio = self.conf['sessio']
 
         self.headers = []
         self.headers.append('Content-Type: text/html; charset=UTF-8')

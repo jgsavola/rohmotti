@@ -46,8 +46,11 @@ class Handler:
                 teksti = parser.parse_string(teksti_input)
 
             kuva_input = self.form.getvalue('kuva')
+            kuva = None
+            if kuva_input is not None and len(kuva_input) > 0:
+                kuva = kuva_input
 
-            kommentti = Kommentti.new(self.kohde_id, teksti, kuva_input)
+            kommentti = Kommentti.new(self.kohde_id, teksti, kuva)
 
             self.redirect_after_post("%s/%s/%d?comment_created=%d" %
                                      (self.conf['script_name'],

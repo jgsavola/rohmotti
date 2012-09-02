@@ -84,10 +84,11 @@ class Handler:
         for kommentti in self.resepti.kommentit:
             kuva_link += "<div class=\"comment\">"
             kuva_link += "<div class=\"timestamp\">%s</div>\n" % (kommentti.aika)
-            kuva_link += "<img src=\"%s/kuva/%d\" alt=\"%s\" />\n" % (
-                self.conf['script_name'],
-                kommentti.kommentti_id,
-                '')
+            if kommentti.kuva is not None:
+                kuva_link += "<img src=\"%s/kuva/%d\" alt=\"%s\" />\n" % (
+                    self.conf['script_name'],
+                    kommentti.kommentti_id,
+                    '')
             kuva_link += "<div class=\"commenttext\">%s</div>\n" % (kommentti.teksti)
             kuva_link += "</div>"
 

@@ -23,7 +23,9 @@ class Kommentti(DatabaseObject):
     def new(cls, kohde_id=None, teksti=None, kuva=None):
         cur = cls.conn.cursor()
         cur.execute("INSERT INTO reseptiohjelma.kommentti (kohde_id, teksti, kuva) VALUES (%s, %s, %s) RETURNING kommentti_id, kohde_id, teksti, kuva, aika",
-                    (kohde_id, teksti, psycopg2.Binary(kuva)))
+                    (kohde_id,
+                     teksti,
+                     None if kuva is None else psycopg2.Binary(kuva)))
         cls.conn.commit()
 
         row = cur.fetchone()

@@ -118,7 +118,16 @@ def main():
                     'navigation': navigation
                     }
 
-    handler_return = handler.render()
+    mode = 'development'
+    handler_return = None
+    try:
+        handler_return = handler.render()
+    except Exception:
+        if mode == 'production':
+            cgi.test()
+        else:
+            cgitb.handler()
+
     if handler_return is None:
         return
 

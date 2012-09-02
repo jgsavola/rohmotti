@@ -52,9 +52,7 @@ class Handler:
                 self.resepti.valmistusohje = valmistusohje
                 self.resepti.save()
 
-                status = '<p class="status">Tallennettu.</p>'
-
-                self.parameters.update({ 'status': status })
+                self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
             elif action == 'upload':
                 teksti_input = self.form.getvalue('teksti')
                 teksti = None
@@ -68,8 +66,7 @@ class Handler:
                 kommentti = Kommentti.new(self.resepti_id, teksti, kuva_input)
                 self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
 
-                self.parameters.update({ 'status': '<p class="status">Uusi kommentti: %d</p>' % (kommentti.kommentti_id) })
-
+                self.redirect_after_post("%s?comment_created=%d" % (self.conf['full_path'], kommentti.kommentti_id))
             self.render_page()
 
         return [ self.headers, self.parameters ]
@@ -100,8 +97,8 @@ class Handler:
         for kommentti in self.resepti.kommentit:
             kuva_link += "<div class=\"comment\">"
             kuva_link += "<div class=\"timestamp\">%s</div>\n" % (kommentti.aika)
-            kuva_link += "<img src=\"%s/../../kuva/%d\" alt=\"%s\" />\n" % (
-                self.conf['request_uri'],
+            kuva_link += "<img src=\"%s/kuva/%d\" alt=\"%s\" />\n" % (
+                self.conf['script_name'],
                 kommentti.kommentti_id,
                 '')
             kuva_link += "<div class=\"commenttext\">%s</div>\n" % (kommentti.teksti)
@@ -125,11 +122,22 @@ class Handler:
                       <input type="hidden" name="action" value="updaterecipe"</input>
                     </ol>
                   </fieldset>
-                </form>""" % (self.conf['script_name'], self.conf['path_info'], valmistusohje_text))
+                </form>""" % (self.conf['script_name'], self.conf['path_info'], self.resepti.valmistusohje))
+
+
+        status = ''
+        if self.form.getvalue('updated', '') == 'true':
+            status = '<p class="status">Tallennettu.</p>'
+        elif self.form.getvalue('comment_created') is not None:
+            status = '<p class="status">Uusi kommentti: %d</p>' % (int(self.form.getvalue('comment_created')))
 
         self.parameters.update({ 'nimi': self.resepti.nimi,
                                  'resepti_id': self.resepti.resepti_id,
                                  'valmistusohje': valmistusohje_text,
                                  'kuva': kuva_link,
                                  'ruokaaineetlista': ruokaaineetlista,
-                                 'status': '' })
+                                 'status': status })
+
+    def redirect_after_post(self, location):
+        self.headers.append('Status: 303 See Other')
+        self.headers.append("Location: %s" % (location))

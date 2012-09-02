@@ -47,9 +47,6 @@ def get_html_template_filename():
             if pair[1] is not None:
                 return path + pair[1]
 
-#    return path + '/resepti' + os.environ.get('PATH_INFO', '') + ".html_"
-#    return re.sub(r'\.py$', r'.html_', os.environ['SCRIPT_FILENAME'])
-
 def import_module(name):
     mod = __import__(name)
     components = name.split('.')
@@ -75,9 +72,8 @@ def main():
     script_name = os.environ.get('SCRIPT_NAME', '')
     app_root_uri = re.sub(r'/src/rohmotti.py$', '', script_name)
     path_info = os.environ.get('PATH_INFO', '')
+    full_path = script_name + path_info
     request_uri = os.environ.get('REQUEST_URI', '')
-    #module_to_load = re.sub(r'^/([^/]+).*', r'\1', path_info)
-    module_to_load = get_handler_name()
     remote_addr = os.environ.get('REMOTE_ADDR')
     http_x_forwarded_for = os.environ.get('HTTP_X_FORWARDED_FOR')
 
@@ -85,10 +81,11 @@ def main():
         effective_remote_addr = http_x_forwarded_for
     else:
         effective_remote_addr = remote_addr
-    
+
     conf = { 'script_name': script_name,
              'app_root_uri': app_root_uri,
              'path_info': path_info,
+             'full_path': full_path,
              'request_uri': request_uri,
              'remote_addr': remote_addr,
              'http_x_forwarded_for': http_x_forwarded_for,
@@ -97,15 +94,12 @@ def main():
 
     html_template_filename = get_html_template_filename()
 
-    # print "path_info: %s" % (path_info)
-    # print "handler_name: %s" % (module_to_load)
-    # print "template_name: %s" % (get_html_template_filename())
-
     C = Cookie.SimpleCookie()
     C.load(os.environ.get('HTTP_COOKIE', ''))
     sessio = Sessio.new_from_cookie(C)
     conf['sessio'] = sessio
 
+    module_to_load = get_handler_name()
     module = import_module(module_to_load)
     handler = module.Handler(form, conf)
 

@@ -24,6 +24,8 @@ handler_mapping = [[r'^/ruokaaine$',       'ruokaaine'],
                    [r'^/resepti/\d+$',     'resepti_1'],
                    [r'^/resepti/\d+/kommentti$', 'kommentti'],
                    [r'^/resepti/\d+/kommentti/\d+$', 'kommentti'],
+                   [r'^/resepti/\d+/ruokaaine$', 'reseptiruokaaine'],
+                   [r'^/resepti/\d+/ruokaaine/\d+$', 'reseptiruokaaine'],
                    [r'^/kuva',             'kuva'],
                    [r'^/kirjautuminen',    'kirjautuminen'],
                    [r'^/henkilo',          'henkilo']]

@@ -27,7 +27,7 @@ class ReseptiRuokaaine(DatabaseObject):
     @classmethod
     def new(cls, resepti=None, ruokaaine=None, jarjestys=None, maara=None, mittayksikko=None):
         cur = cls.conn.cursor()
-        cur.execute("INSERT INTO reseptiohjelma.resepti_ruokaaine (resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko) VALUES (%s) RETURNING resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko", (resepti.resepti_id, ruokaaine.ruokaaine_id, jarjestys, maara, mittayksikko))
+        cur.execute("INSERT INTO reseptiohjelma.resepti_ruokaaine (resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko) VALUES (%s, %s, %s, %s, %s) RETURNING resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko", (resepti.resepti_id, ruokaaine.ruokaaine_id, jarjestys, maara, mittayksikko))
         cls.conn.commit()
 
         row = cur.fetchone()

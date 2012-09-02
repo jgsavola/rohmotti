@@ -10,6 +10,8 @@ import cgi
 import textwrap
 from Resepti import Resepti
 from ReseptiRuokaaine import ReseptiRuokaaine
+from Ruokaaine import Ruokaaine
+from Mittayksikko import Mittayksikko
 from Kommentti import Kommentti
 from html_parser import CommentHTMLParser
 
@@ -121,6 +123,8 @@ class Handler:
                   </fieldset>
                 </form>""" % (self.conf['script_name'], self.conf['path_info'], self.resepti.valmistusohje))
 
+        ruokaaine_optiot = self.create_ruokaaine_optiot()
+        mittayksikko_optiot = self.create_mittayksikko_optiot()
 
         status = ''
         if self.form.getvalue('updated', '') == 'true':
@@ -133,7 +137,26 @@ class Handler:
                                  'valmistusohje': valmistusohje_text,
                                  'kuva': kuva_link,
                                  'ruokaaineetlista': ruokaaineetlista,
+                                 'ruokaaine_optiot': ruokaaine_optiot,
+                                 'mittayksikko_optiot': mittayksikko_optiot,
                                  'status': status })
+
+    def create_ruokaaine_optiot(self):
+        options = ''
+        for ruokaaine_id in Ruokaaine.load_ids():
+            ruokaaine = Ruokaaine.load_from_database(ruokaaine_id=ruokaaine_id)
+            options = options + ("<option value=\"%d\">%s</option>\n" %
+                                 (ruokaaine_id, ruokaaine.nimi))
+
+        return options
+
+    def create_mittayksikko_optiot(self):
+        options = ''
+        for nimi in Mittayksikko.load_ids():
+            options = options + ("<option value=\"%s\">%s</option>\n" %
+                                 (nimi, nimi))
+
+        return options
 
     def redirect_after_post(self, location):
         self.headers.append('Status: 303 See Other')

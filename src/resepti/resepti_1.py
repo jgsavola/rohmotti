@@ -53,20 +53,7 @@ class Handler:
                 self.resepti.save()
 
                 self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
-            elif action == 'upload':
-                teksti_input = self.form.getvalue('teksti')
-                teksti = None
 
-                if teksti_input is not None:
-                    parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
-                    teksti = parser.parse_string(teksti_input)
-
-                kuva_input = self.form.getvalue('kuva')
-
-                kommentti = Kommentti.new(self.resepti_id, teksti, kuva_input)
-                self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
-
-                self.redirect_after_post("%s?comment_created=%d" % (self.conf['full_path'], kommentti.kommentti_id))
             self.render_page()
 
         return [ self.headers, self.parameters ]

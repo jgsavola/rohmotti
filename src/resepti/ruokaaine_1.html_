@@ -15,7 +15,7 @@
     ${kuva}
 
     <div class="commentform">
-      <form class="cmxform" action="${REQUEST_URI}" method="post" enctype="multipart/form-data">
+      <form class="cmxform" action="${FULL_PATH}/kommentti" method="post" enctype="multipart/form-data">
 	<fieldset>
 	  <legend>Lataa kuva:</legend>
 	  <ol>

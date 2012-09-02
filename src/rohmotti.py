@@ -18,8 +18,12 @@ from sessio import Sessio
 
 handler_mapping = [[r'^/ruokaaine$',       'ruokaaine'],
                    [r'^/ruokaaine/\d+$',   'ruokaaine_1'],
+                   [r'^/ruokaaine/\d+/kommentti$', 'kommentti'],
+                   [r'^/ruokaaine/\d+/kommentti/\d+$', 'kommentti'],
                    [r'^/resepti$',         'resepti'],
                    [r'^/resepti/\d+$',     'resepti_1'],
+                   [r'^/resepti/\d+/kommentti$', 'kommentti'],
+                   [r'^/resepti/\d+/kommentti/\d+$', 'kommentti'],
                    [r'^/kuva',             'kuva'],
                    [r'^/kirjautuminen',    'kirjautuminen'],
                    [r'^/henkilo',          'henkilo']]
@@ -115,6 +119,7 @@ def main():
 
     render_dict = { 'REQUEST_URI': request_uri,
                     'APP_ROOT_URI': app_root_uri,
+                    'FULL_PATH': full_path,
                     'navigation': navigation
                     }
 

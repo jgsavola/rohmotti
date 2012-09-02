@@ -22,36 +22,18 @@ class Handler:
         return self._conf
 
     def render(self):
-        path_info = os.environ.get('PATH_INFO', '')
-
         self.headers = []
         self.headers.append('Content-Type: text/html; charset=UTF-8')
 
         self.parameters = {}
 
         ruokaaine_id = None
-        m = re.match(r'.*/(\d+)', path_info)
+        m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
             ruokaaine_id = m.group(1)
 
         if os.environ['REQUEST_METHOD'] == 'GET':
             self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id = ruokaaine_id)
-
-            self.render_page()
-        elif os.environ['REQUEST_METHOD'] == 'POST':
-            teksti_input = self.form.getvalue('teksti')
-            teksti = None
-
-            if teksti_input is not None:
-                parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
-                teksti = parser.parse_string(teksti_input)
-
-            kuva_input = self.form.getvalue('kuva')
-
-            kommentti = Kommentti.new(ruokaaine_id, teksti, kuva_input)
-            self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id = ruokaaine_id)
-
-            self.parameters.update({ 'status': '<p class="status">Uusi kommentti: %d</p>' % (kommentti.kommentti_id) })
 
             self.render_page()
 
@@ -69,7 +51,13 @@ class Handler:
             kuva_link += "<div class=\"commenttext\">%s</div>\n" % (kommentti.teksti)
             kuva_link += "</div>"
 
+        status = ''
+        if self.form.getvalue('updated', '') == 'true':
+            status = '<p class="status">Tallennettu.</p>'
+        elif self.form.getvalue('comment_created') is not None:
+            status = '<p class="status">Uusi kommentti: %d</p>' % (int(self.form.getvalue('comment_created')))
+
         self.parameters.update({ 'nimi': cgi.escape(self.ruokaaine.nimi),
                                  'ruokaaine_id': self.ruokaaine.ruokaaine_id,
                                  'kuva': kuva_link,
-                                 'status': '' })
+                                 'status': status })

@@ -86,6 +86,10 @@ g)  käyttäjien hallinta
 9. Käynnistys / käyttöohje
 ***************************
 
+Sovelluksen sijainti: http://jgsavola.users.cs.helsinki.fi/rohmotti/src/rohmotti.py
+
+Rohmottiin voi tehdä käyttäjätunnuksen kirjautumissivulla.
+
 10. Liitteet
 ************
 

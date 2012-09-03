@@ -3,3 +3,13 @@
 * sessiot + tunnistautuminen
 * koodin kommentointi
 * dokumentointi
+* välimuistin optimointi: ETags?
+* kuvien content-type-tunnistus
+* UNDO-toiminnallisuus
+* tietokantaoliomallin yleistys, nyt koodista iso osa
+  kopioi-liimaa-muokkaa-tyylillä
+* käyttöoikeuksien valvonta
+* JSON-tulostus robotteja ja AJAX-toteutusta varten
+* reseptin ruoka-ainelistan fiksu parsinta: käyttöliittymä normaali
+   tekstimuotoinen lista, josta tunnistettaisiin automaattisesti ja
+   käyttäjäavusteisesti ruoka-aineet

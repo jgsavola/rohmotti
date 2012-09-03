@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import os
 import re
-import psycopg2
-import json
 import cgi
 import cgitb
 from Kommentti import Kommentti
@@ -16,10 +13,8 @@ class Handler:
         self.conf = conf
 
     def render(self):
-        path_info = self.conf['path_info']
-
         kuva_id = None
-        m = re.match(r'.*/(\d+)', path_info)
+        m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
             kuva_id = m.group(1)
 

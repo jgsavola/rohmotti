@@ -14,19 +14,23 @@ class Handler:
 
     def render(self):
         self.headers = []
-        self.headers.append('Content-Type: text/html; charset=UTF-8')
 
         self.parameters = {}
 
         ruokaaine_id = None
         m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
-            ruokaaine_id = m.group(1)
+            ruokaaine_id = int(m.group(1))
 
         if self.conf['request_method'] == 'GET':
-            self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id = ruokaaine_id)
+            self.headers.append('Content-Type: text/html; charset=UTF-8')
 
+            self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id = ruokaaine_id)
             self.render_page()
+        elif self.conf['request_method'] == 'DELETE':
+            Ruokaaine.delete(ruokaaine_id=ruokaaine_id)
+
+            self.redirect_after_post("%s/ruokaaine?deleted=%d" % (self.conf['script_name'], ruokaaine_id))
 
         return [ self.headers, self.parameters ]
 
@@ -57,3 +61,7 @@ class Handler:
                                  'ruokaaine_id': self.ruokaaine.ruokaaine_id,
                                  'kuva': kuva_link,
                                  'status': status })
+
+    def redirect_after_post(self, location):
+        self.headers.append('Status: 303 See Other')
+        self.headers.append("Location: %s" % (location))

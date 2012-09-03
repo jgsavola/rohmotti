@@ -51,8 +51,6 @@ class Handler:
                 self.resepti.save()
 
                 self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
-
-            self.render_page()
         elif self.conf['request_method'] == 'DELETE':
             Resepti.delete(resepti_id=self.resepti_id)
 

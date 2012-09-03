@@ -12,11 +12,18 @@ class Resepti(DatabaseObject):
 
     @classmethod
     def load_from_database(cls, resepti_id):
-        cur = cls.conn.cursor()
-        cur.execute("SELECT resepti_id, nimi, valmistusohje FROM reseptiohjelma.resepti WHERE resepti_id = %s", (int(resepti_id),))
-        row = cur.fetchone()
+        row = None
+        try:
+            cur = cls.conn.cursor()
+            cur.execute("SELECT resepti_id, nimi, valmistusohje FROM reseptiohjelma.resepti WHERE resepti_id = %s", (int(resepti_id),))
+            row = cur.fetchone()
+        except:
+            cls.conn.rollback()
+            raise
+        else:
+            cls.conn.commit()
 
-        resepti = Resepti(row[0], row[1], row[2])
+        resepti = Resepti(*row)
 
         kommentit = []
         for kommentti_id in Kommentti.load_ids(resepti_id):
@@ -28,30 +35,48 @@ class Resepti(DatabaseObject):
 
     @classmethod
     def new(cls, nimi=None, valmistusohje=None):
-        cur = cls.conn.cursor()
-        cur.execute("INSERT INTO reseptiohjelma.resepti (nimi, valmistusohje) VALUES (%s, %s) RETURNING resepti_id, nimi, valmistusohje", (nimi, valmistusohje))
-        cls.conn.commit()
+        row = None
+        try:
+            cur = cls.conn.cursor()
+            cur.execute("INSERT INTO reseptiohjelma.resepti (nimi, valmistusohje) VALUES (%s, %s) RETURNING resepti_id, nimi, valmistusohje", (nimi, valmistusohje))
 
-        row = cur.fetchone()
+            row = cur.fetchone()
+        except:
+            cls.conn.rollback()
+            raise
+        else:
+            cls.conn.commit()
 
-        resepti = Resepti(row[0], row[1])
-
-        return resepti
+        return Resepti(*row)
 
     @classmethod
     def load_ids(cls):
-        cur = cls.conn.cursor()
-        cur.execute("SELECT resepti_id FROM reseptiohjelma.resepti ORDER BY nimi, resepti_id")
-        for row in cur.fetchall():
-            yield row[0]
+        try:
+            cur = cls.conn.cursor()
+            cur.execute("SELECT resepti_id FROM reseptiohjelma.resepti ORDER BY nimi, resepti_id")
+            for row in cur.fetchall():
+                yield row[0]
+        except:
+            cls.conn.rollback()
+            raise
+        else:
+            cls.conn.commit()
 
     def save(self):
-        cur = Resepti.conn.cursor()
-        cur.execute("UPDATE resepti SET nimi = %s, valmistusohje = %s WHERE resepti_id = %s", (self.nimi, self.valmistusohje, self.resepti_id))
-        Resepti.conn.commit()
+        try:
+            cur = Resepti.conn.cursor()
+            cur.execute("UPDATE resepti SET nimi = %s, valmistusohje = %s WHERE resepti_id = %s", (self.nimi, self.valmistusohje, self.resepti_id))
+        except:
+            self.__class__.conn.rollback()
+        else:
+            self.__class__.conn.commit()
 
     @classmethod
     def delete(cls, resepti_id):
-        cur = cls.conn.cursor()
-        cur.execute("DELETE FROM reseptiohjelma.resepti WHERE resepti_id = %s", (resepti_id,))
-        cls.conn.commit()
+        try:
+            cur = cls.conn.cursor()
+            cur.execute("DELETE FROM reseptiohjelma.resepti WHERE resepti_id = %s", (resepti_id,))
+        except:
+            cls.conn.rollback()
+        else:
+            cls.conn.commit()

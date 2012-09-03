@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*- 
 
 import cgi
-from Ruokaaine import Ruokaaine
+from db.Ruokaaine import Ruokaaine
 
 class Handler:
     def __init__(self, form, conf):

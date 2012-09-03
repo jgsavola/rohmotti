@@ -4,12 +4,12 @@
 import re
 import cgi
 import textwrap
-from Resepti import Resepti
-from ReseptiRuokaaine import ReseptiRuokaaine
-from Ruokaaine import Ruokaaine
-from Mittayksikko import Mittayksikko
-from Kommentti import Kommentti
-from html_parser import CommentHTMLParser
+from db.Resepti import Resepti
+from db.ReseptiRuokaaine import ReseptiRuokaaine
+from db.Ruokaaine import Ruokaaine
+from db.Mittayksikko import Mittayksikko
+from db.Kommentti import Kommentti
+from util.html_parser import CommentHTMLParser
 
 class Handler:
     def __init__(self, form, conf):

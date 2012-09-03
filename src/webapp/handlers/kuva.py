@@ -5,7 +5,7 @@ import sys
 import re
 import cgi
 import cgitb
-from Kommentti import Kommentti
+from db.Kommentti import Kommentti
 
 class Handler:
     def __init__(self, form, conf):

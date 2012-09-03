@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*- 
 
 import cgi
-from Resepti import Resepti
-from ReseptiRuokaaine import ReseptiRuokaaine
-from html_parser import CommentHTMLParser
+from db.Resepti import Resepti
+from db.ReseptiRuokaaine import ReseptiRuokaaine
+from util.html_parser import CommentHTMLParser
 
 class Handler:
     def __init__(self, form, conf):

@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-sys.path.insert(0, 'resepti')
-
 import os
 import pwd
 import re
@@ -12,31 +10,32 @@ import cgi
 import cgitb
 import Cookie
 from string import Template
-from DatabaseObject import DatabaseObject
-from sessio import Sessio
 
-handler_mapping = [[r'^/ruokaaine$',       'ruokaaine'],
-                   [r'^/ruokaaine/\d+$',   'ruokaaine_1'],
-                   [r'^/ruokaaine/\d+/kommentti$', 'kommentti'],
-                   [r'^/ruokaaine/\d+/kommentti/\d+$', 'kommentti'],
-                   [r'^/resepti$',         'resepti'],
-                   [r'^/resepti/\d+$',     'resepti_1'],
-                   [r'^/resepti/\d+/kommentti$', 'kommentti'],
-                   [r'^/resepti/\d+/kommentti/\d+$', 'kommentti'],
-                   [r'^/resepti/\d+/ruokaaine$', 'reseptiruokaaine'],
-                   [r'^/resepti/\d+/ruokaaine/\d+$', 'reseptiruokaaine'],
-                   [r'^/kuva',             'kuva'],
-                   [r'^/kirjautuminen',    'kirjautuminen'],
-                   [r'^/henkilo',          'henkilo']]
-template_mapping = [[r'^/ruokaaine$',      '/resepti/ruokaaine.html_'],
-                    [r'^/ruokaaine/\d+$',  '/resepti/ruokaaine_1.html_'],
-                    [r'^/resepti$',        '/resepti/resepti.html_'],
-                    [r'^/resepti/\d+$',    '/resepti/resepti_1.html_'],
-                    [r'^/kirjautuminen$',  '/resepti/kirjautuminen.html_'],
-                    [r'^/henkilo$',        '/resepti/henkilo.html_'],
-                    [r'^/henkilo/\d+$',    '/resepti/henkilo_1.html_'],
+from db.DatabaseObject import DatabaseObject
+from util.sessio import Sessio
+
+handler_mapping = [[r'^/ruokaaine$',       'webapp.handlers.ruokaaine'],
+                   [r'^/ruokaaine/\d+$',   'webapp.handlers.ruokaaine_1'],
+                   [r'^/ruokaaine/\d+/kommentti$', 'webapp.handlers.kommentti'],
+                   [r'^/ruokaaine/\d+/kommentti/\d+$', 'webapp.handlers.kommentti'],
+                   [r'^/resepti$',         'webapp.handlers.resepti'],
+                   [r'^/resepti/\d+$',     'webapp.handlers.resepti_1'],
+                   [r'^/resepti/\d+/kommentti$', 'webapp.handlers.kommentti'],
+                   [r'^/resepti/\d+/kommentti/\d+$', 'webapp.handlers.kommentti'],
+                   [r'^/resepti/\d+/ruokaaine$', 'webapp.handlers.reseptiruokaaine'],
+                   [r'^/resepti/\d+/ruokaaine/\d+$', 'webapp.handlers.reseptiruokaaine'],
+                   [r'^/kuva',             'webapp.handlers.kuva'],
+                   [r'^/kirjautuminen',    'webapp.handlers.kirjautuminen'],
+                   [r'^/henkilo',          'webapp.handlers.henkilo']]
+template_mapping = [[r'^/ruokaaine$',      '/html_templates/ruokaaine.html_'],
+                    [r'^/ruokaaine/\d+$',  '/html_templates/ruokaaine_1.html_'],
+                    [r'^/resepti$',        '/html_templates/resepti.html_'],
+                    [r'^/resepti/\d+$',    '/html_templates/resepti_1.html_'],
+                    [r'^/kirjautuminen$',  '/html_templates/kirjautuminen.html_'],
+                    [r'^/henkilo$',        '/html_templates/henkilo.html_'],
+                    [r'^/henkilo/\d+$',    '/html_templates/henkilo_1.html_'],
                     [r'^/kuva/\d+$',       None],
-                    [r'^$',                '/resepti/rohmotti.html_']]
+                    [r'^$',                '/html_templates/rohmotti.html_']]
 
 def get_handler_name():
     path = re.sub(r'/[^/]+$', '', os.environ['SCRIPT_FILENAME'])

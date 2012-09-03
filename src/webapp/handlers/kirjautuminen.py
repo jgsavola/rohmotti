@@ -8,10 +8,10 @@ import datetime
 import time
 import math
 
-from Henkilo import Henkilo
-import salasana
-from sessio import Sessio
-from html_parser import CommentHTMLParser
+from db.Henkilo import Henkilo
+from util import salasana
+from util.sessio import Sessio
+from util.html_parser import CommentHTMLParser
 
 class Handler:
     def __init__(self, form, conf):

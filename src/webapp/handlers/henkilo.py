@@ -3,7 +3,7 @@
 
 import re
 import cgi
-from Henkilo import Henkilo
+from db.Henkilo import Henkilo
 
 class Handler:
     def __init__(self, form, conf):

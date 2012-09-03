@@ -3,9 +3,9 @@
 
 import re
 import cgi
-from Ruokaaine import Ruokaaine
-from Kommentti import Kommentti
-from html_parser import CommentHTMLParser
+from db.Ruokaaine import Ruokaaine
+from db.Kommentti import Kommentti
+from util.html_parser import CommentHTMLParser
 
 class Handler:
     def __init__(self, form, conf):

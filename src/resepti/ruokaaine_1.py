@@ -1,11 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*- 
 
-import os
-import sys
 import re
-import psycopg2
-import json
 import cgi
 from Ruokaaine import Ruokaaine
 from Kommentti import Kommentti
@@ -14,12 +10,7 @@ from html_parser import CommentHTMLParser
 class Handler:
     def __init__(self, form, conf):
         self.form = form
-        self._conf = conf
-
-    @property
-    def conf(self):
-        """Get the configuration"""
-        return self._conf
+        self.conf = conf
 
     def render(self):
         self.headers = []

@@ -1,11 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*- 
 
-import os
-import sys
 import re
-import psycopg2
-import json
 import cgi
 import textwrap
 from Resepti import Resepti

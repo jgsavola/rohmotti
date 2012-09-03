@@ -1,27 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*- 
 
-import os
-import sys
-import re
-import psycopg2
-import json
 import cgi
 from Ruokaaine import Ruokaaine
 
 class Handler:
     def __init__(self, form, conf):
         self.form = form
-        self._conf = conf
-
-    @property
-    def conf(self):
-        """Get the configuration"""
-        return self._conf
+        self.conf = conf
 
     def render(self):
-        path_info = os.environ.get('PATH_INFO', '')
-
         self.headers = []
         self.headers.append('Content-Type: text/html; charset=UTF-8')
 

@@ -8,7 +8,6 @@ import os
 import pwd
 import re
 import psycopg2
-import json
 import cgi
 import cgitb
 import Cookie

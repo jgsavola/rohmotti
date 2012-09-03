@@ -42,3 +42,9 @@ class Ruokaaine(DatabaseObject):
         cur.execute("SELECT ruokaaine_id FROM reseptiohjelma.ruokaaine ORDER BY nimi, ruokaaine_id")
         for row in cur.fetchall():
             yield row[0]
+
+    @classmethod
+    def delete(cls, ruokaaine_id):
+        cur = cls.conn.cursor()
+        cur.execute("DELETE FROM reseptiohjelma.ruokaaine WHERE ruokaaine_id = %s", (ruokaaine_id,))
+        cls.conn.commit()

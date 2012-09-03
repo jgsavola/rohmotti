@@ -21,15 +21,5 @@
 	<input type="text" name="nimi" />
       </fieldset>
     </form>
-
-    <form action="${REQUEST_URI}" method="post">
-      <fieldset>
-	<legend>Poista resepti</legend>
-	<label for="id">ID:</label>
-	<input type="text" name="id" id="id" /><br>
-	<input type="hidden" name="method_override" value="DELETE" />
-	<input type="submit" value="submit" />
-      </fieldset>
-    </form>
   </body>
 </html>

@@ -35,7 +35,8 @@ template_mapping = [[r'^/ruokaaine$',      '/resepti/ruokaaine.html_'],
                     [r'^/kirjautuminen$',  '/resepti/kirjautuminen.html_'],
                     [r'^/henkilo$',        '/resepti/henkilo.html_'],
                     [r'^/henkilo/\d+$',    '/resepti/henkilo_1.html_'],
-                    [r'^/kuva/\d+$',       None]]
+                    [r'^/kuva/\d+$',       None],
+                    [r'^$',                '/resepti/rohmotti.html_']]
 
 def get_handler_name():
     path = re.sub(r'/[^/]+$', '', os.environ['SCRIPT_FILENAME'])
@@ -114,10 +115,6 @@ def main():
     sessio = Sessio.new_from_cookie(C)
     conf['sessio'] = sessio
 
-    module_to_load = get_handler_name()
-    module = import_module(module_to_load)
-    handler = module.Handler(form, conf)
-
     navigation = """\
         <span class="navigation">
             <ul class="navigation">
@@ -135,21 +132,33 @@ def main():
                     }
 
     mode = 'development'
+
+    module_to_load = get_handler_name()
+    handler = None
+    if module_to_load is not None:
+        module = import_module(module_to_load)
+        handler = module.Handler(form, conf)
+
     handler_return = None
-    try:
-        handler_return = handler.render()
-    except Exception:
-        if mode == 'production':
-            cgi.test()
-        else:
-            cgitb.handler()
+    if handler is not None:
+        try:
+            handler_return = handler.render()
+        except Exception:
+            if mode == 'production':
+                cgi.test()
+            else:
+                cgitb.handler()
 
-    if handler_return is None:
-        return
+        if handler_return is None:
+            return
 
-    render_dict.update(handler_return[1])
-
-    sys.stdout.write('\r\n'.join(handler_return[0]) + '\r\n\r\n')
+        render_dict.update(handler_return[1])
+        sys.stdout.write('\r\n'.join(handler_return[0]) + '\r\n\r\n')
+    else:
+        #
+        # Oletusotsakkeet
+        #
+        sys.stdout.write('Content-Type: text/html; charset=UTF-8\r\n\r\n')
 
     debug = False
     try:

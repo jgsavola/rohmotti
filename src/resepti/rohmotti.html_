@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" media="all" href="${APP_ROOT_URI}/src/styles/default.css" />
+
+    <title>Rohmotti &mdash; ruokaohjeautomaatti</title>
+  </head>
+  <body>
+    <div class="navigation">${navigation}</div>
+
+    <h1>Tervetuloa Rohmottiin</h1>
+
+    <p>Rohmotti on ruokaohjeautomaatti, joka
+      tarkoitettu <a href="${REQUEST_URI}/resepti">ruokaohjeiden</a>
+      tallentamiseen ja ylläpitoon.  Rohmotin avulla voit pitää kirjaa
+      ruokaohjeista ja
+      niiden <a href="${REQUEST_URI}/ruokaaine">ruoka-aineista</a>,
+      aterioista ja aterioille
+      osallistuneista <a href="${REQUEST_URI}/henkilo">henkilöistä</a>. Voit
+      suunnitella uuden aterian helposti ja turvallisesti &mdash;
+      Rohmotti tekee ostoslistat ja pitää huolen, ettet tarjoile samaa
+      ateriaa samoille henkilöille liian usein!
+    </p>
+
+    <p>Onko porkkanoita? Rohmotti etsii sinulle kaikki ruoka-ohjeet,
+    joihin
+    käytetään <a href="${REQUEST_URI}/haku/ruokaaine?q=porkkana">porkkanoita</a>.</p>
+
+    <p>Rohmotissa voit lisätä kuvallisia
+      <a href="${REQUEST_URI}/kommentti">kommentteja</a> ruoka-aineille,
+      resepteille, aterioille ja henkilöille.</p>
+
+    <p><a href="${REQUEST_URI}/kirjautuminen">Luo</a> itsellesi
+    käyttäjä ja liity Rohmottiin!</p>
+  </body>
+</html>

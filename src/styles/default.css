@@ -61,6 +61,21 @@ ul.navigation li a {
     border-bottom: none;
 }
 
+#rohmottinav {
+    background-image: url(../images/rohmotti_small_pos.png);
+    background-size: 50px 20px;
+    background-repeat: no-repeat;
+}
+
+#rohmottinav:hover {
+    background-image: url(../images/rohmotti_small_neg.png);
+}
+
+ul.navigation li a:hover {
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
 div.commentform {
     margin-top: 20px
 }

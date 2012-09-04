@@ -27,7 +27,8 @@ class Kohde(SimpleDatabaseObject):
             if my_cursor is None:
                 my_cursor = cls.conn.cursor()
 
-            super_object = super(Kohde, cls).load_from_database(_id, _cursor=my_cursor)
+            kwargs['_cursor'] = my_cursor
+            super_object = super(Kohde, cls).load_from_database(_id, **kwargs)
 
             my_cursor.execute(query, (int(_id),))
             row = my_cursor.fetchone()
@@ -139,7 +140,8 @@ class Kohde(SimpleDatabaseObject):
             if my_cursor is None:
                 my_cursor = cls.conn.cursor()
 
-            super(Kohde, cls).delete(_id, _cursor=my_cursor)
+            kwargs['_cursor'] = my_cursor
+            super(Kohde, cls).delete(_id, **kwargs)
 
             my_cursor.execute(delete_sql, (_id,))
         except:

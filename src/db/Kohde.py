@@ -133,7 +133,8 @@ class Kohde(SimpleDatabaseObject):
 
     @classmethod
     def delete(cls, _id, **kwargs):
-        delete_sql = 'DELETE FROM reseptiohjelma.kohde WHERE kohde_id = %s'
+        delete_sql = ('DELETE FROM %s WHERE %s = %%s' %
+                      (Kohde.table_name, Kohde.id_column))
 
         my_cursor = _cursor = kwargs.get('_cursor', None)
         try:

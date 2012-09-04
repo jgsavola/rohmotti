@@ -48,6 +48,6 @@ r.valmistusohje = r.valmistusohje + "_update"
 r.omistaja = 64
 r.save()
 
-#print "delete"
-#Resepti3.delete(r.resepti_id)
+print "delete"
+Resepti3.delete(r.resepti_id)
 

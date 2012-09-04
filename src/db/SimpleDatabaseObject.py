@@ -24,7 +24,7 @@ class SimpleDatabaseObject(DatabaseObject):
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
-            setattr(self.__class__, k, v)
+            setattr(self, k, v)
 
     @classmethod
     def load_from_database(cls, _id, **kwargs):

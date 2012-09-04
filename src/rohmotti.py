@@ -26,7 +26,8 @@ handler_mapping = [[r'^/ruokaaine$',       'webapp.handlers.ruokaaine'],
                    [r'^/resepti/\d+/ruokaaine/\d+$', 'webapp.handlers.reseptiruokaaine'],
                    [r'^/kuva',             'webapp.handlers.kuva'],
                    [r'^/kirjautuminen',    'webapp.handlers.kirjautuminen'],
-                   [r'^/henkilo',          'webapp.handlers.henkilo']]
+                   [r'^/henkilo',          'webapp.handlers.henkilo'],
+                   [r'^/haku',             'webapp.handlers.haku']]
 template_mapping = [[r'^/ruokaaine$',      '/html_templates/ruokaaine.html_'],
                     [r'^/ruokaaine/\d+$',  '/html_templates/ruokaaine_1.html_'],
                     [r'^/resepti$',        '/html_templates/resepti.html_'],
@@ -35,6 +36,7 @@ template_mapping = [[r'^/ruokaaine$',      '/html_templates/ruokaaine.html_'],
                     [r'^/henkilo$',        '/html_templates/henkilo.html_'],
                     [r'^/henkilo/\d+$',    '/html_templates/henkilo_1.html_'],
                     [r'^/kuva/\d+$',       None],
+                    [r'^/haku$',           '/html_templates/haku.html_'],
                     [r'^$',                '/html_templates/rohmotti.html_']]
 
 def get_handler_name():

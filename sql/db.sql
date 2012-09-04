@@ -8,7 +8,9 @@ SET search_path TO reseptiohjelma, "$user", public;
 
 CREATE TABLE kohde(
        kohde_id serial PRIMARY KEY,
-       tyyppi text NOT NULL CHECK (tyyppi IN ('RA', 'RE', 'AT', 'HE'))
+       tyyppi text NOT NULL CHECK (tyyppi IN ('RA', 'RE', 'AT', 'HE')),
+       luotu timestamp with time zone NOT NULL DEFAULT now(),
+       omistaja int REFERENCES henkilo (henkilo_id) -- Pitäisi olla NOT NULL
 );
 
 CREATE FUNCTION luo_uusi_kohde(text) RETURNS int AS

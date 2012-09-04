@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-class DatabaseObject:
+class DatabaseObject(object):
     #
     # This is the database connection for the class hierarchy.
     #

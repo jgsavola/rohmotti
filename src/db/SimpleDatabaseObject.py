@@ -4,6 +4,19 @@
 import psycopg2
 from DatabaseObject import DatabaseObject
 
+#
+# Transaktioiden hallinnasta:
+#
+# Jos kursori on annettu _cursor-parametrissa, transaktionhallinta
+# hoidetaan jossakin kutsujassa.
+#
+# Jos kursoria ei ole annettu, luodaan oma kursori. Tässä tapauksessa
+# transaktion päättäminen pitää tapahtua saman metodin sisällä.
+#
+# Jos metodista tehdään kutsuja toisiin metodeihin, käytettävä kursori
+# pitää liittää kutsuparametreihin.
+#
+
 class SimpleDatabaseObject(DatabaseObject):
     id_column = 'id'
     other_columns = []
@@ -16,26 +29,30 @@ class SimpleDatabaseObject(DatabaseObject):
             setattr(self.__class__, columns[i], v)
 
     @classmethod
-    def load_from_database(cls, _id):
+    def load_from_database(cls, _id, **kwargs):
+        my_cursor = _cursor = kwargs.get('_cursor', None)
         row = None
         try:
-            cur = cls.conn.cursor()
+            if my_cursor is None:
+                my_cursor = cls.conn.cursor()
             query = ("SELECT %s FROM %s WHERE %s = %%s" %
                      (', '.join([cls.id_column] + cls.other_columns),
                       cls.table_name,
                       cls.id_column))
-            cur.execute(query, (int(_id),))
-            row = cur.fetchone()
+            my_cursor.execute(query, (int(_id),))
+            row = my_cursor.fetchone()
         except:
-            cls.conn.rollback()
+            if _cursor is None:
+                cls.conn.rollback()
             raise
         else:
-            cls.conn.commit()
+            if _cursor is None:
+                cls.conn.commit()
 
         return cls(*row)
 
     @classmethod
-    def new(cls, *args):
+    def new(cls, *args, **kwargs):
         insert_columns = cls.other_columns
         select_columns = [cls.id_column] + cls.other_columns
         insert_values = args
@@ -48,35 +65,44 @@ class SimpleDatabaseObject(DatabaseObject):
         insert_sql = ("""INSERT INTO %s (%s) VALUES (%s) RETURNING %s""" %
                       (cls.table_name, insert_columns_string, values_string, select_columns_string))
 
+        my_cursor = _cursor = kwargs.get('_cursor', None)
+
         row = None
         try:
-            cur = cls.conn.cursor()
-            cur.execute(insert_sql, (insert_values))
+            if my_cursor is None:
+                my_cursor = cls.conn.cursor()
+            my_cursor.execute(insert_sql, (insert_values))
 
-            row = cur.fetchone()
+            row = my_cursor.fetchone()
         except:
-            cls.conn.rollback()
+            if _cursor is None:
+                cls.conn.rollback()
             raise
         else:
-            cls.conn.commit()
+            if _cursor is None:
+                cls.conn.commit()
 
         return cls(*row)
 
     @classmethod
-    def load_ids(cls):
+    def load_ids(cls, **kwargs):
+        my_cursor = _cursor = kwargs.get('_cursor', None)
         try:
-            cur = cls.conn.cursor()
-            cur.execute("SELECT %s FROM %s ORDER BY %s" %
+            if my_cursor is None:
+                my_cursor = cls.conn.cursor()
+            my_cursor.execute("SELECT %s FROM %s ORDER BY %s" %
                         (cls.id_column, cls.table_name, cls.id_column))
-            for row in cur.fetchall():
+            for row in my_cursor.fetchall():
                 yield row[0]
         except:
-            cls.conn.rollback()
+            if _cursor is None:
+                cls.conn.rollback()
             raise
         else:
-            cls.conn.commit()
+            if _cursor is None:
+                cls.conn.commit()
 
-    def save(self):
+    def save(self, **kwargs):
         """Tallenna (päivitä) olion tiedot tietokantaan."""
 
         update_columns = self.__class__.other_columns
@@ -91,31 +117,34 @@ class SimpleDatabaseObject(DatabaseObject):
 
         print update_sql
 
+        my_cursor = _cursor = kwargs.get('_cursor', None)
         try:
-            cur = self.__class__.conn.cursor()
-            cur.execute(update_sql, update_values)
+            if my_cursor is None:
+                my_cursor = self.__class__.conn.cursor()
+            my_cursor.execute(update_sql, update_values)
         except:
-            self.__class__.conn.rollback()
+            if _cursor is None:
+                self.__class__.conn.rollback()
             raise
         else:
-            self.__class__.conn.commit()
+            if _cursor is None:
+                self.__class__.conn.commit()
 
     @classmethod
-    def delete(cls, _id):
-        """Hävitä kohde tietokannasta, joka täsmää annettuun id-arvoon."""
+    def delete(cls, _id, **kwargs):
+        """Hävitä tietokannasta kohde, joka täsmää annettuun id-arvoon."""
 
         delete_sql = ("DELETE FROM %s WHERE %s = %%s" % (cls.table_name, cls.id_column))
 
+        my_cursor = _cursor = kwargs.get('_cursor', None)
         try:
-            cur = cls.conn.cursor()
-            cur.execute(delete_sql, (_id,))
+            if my_cursor is None:
+                my_cursor = cls.conn.cursor()
+            my_cursor.execute(delete_sql, (_id,))
         except:
-            cls.conn.rollback()
+            if _cursor is None:
+                cls.conn.rollback()
             raise
         else:
-            cls.conn.commit()
-
-    # def delete(self):
-    #     """Apumetodi: hävitä kohde, johon self viittaa."""
-    #
-    #     self.__class__.delete(self, getattr(self, self.__class__.id_column))
+            if _cursor is None:
+                cls.conn.commit()

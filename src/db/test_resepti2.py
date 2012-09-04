@@ -35,7 +35,7 @@ for id in Kommentti.load_ids():
 
 print "Resepti3"
 print "new"
-r = Resepti3.new('testi_' + str(time.time()), 'valmista')
+r = Resepti3.new(nimi='testi_' + str(time.time()), valmistusohje='valmista')
 print "    %d %s" % (r.resepti_id, r.nimi)
 
 print "update"

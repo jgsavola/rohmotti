@@ -22,21 +22,21 @@ class SimpleDatabaseObject(DatabaseObject):
     other_columns = []
     table_name = None
 
-    def __init__(self, *args):
-        columns = [self.__class__.id_column] + self.__class__.other_columns
-
-        for i, v in enumerate(args):
-            setattr(self.__class__, columns[i], v)
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self.__class__, k, v)
 
     @classmethod
     def load_from_database(cls, _id, **kwargs):
+        select_columns = [cls.id_column] + cls.other_columns
+
         my_cursor = _cursor = kwargs.get('_cursor', None)
         row = None
         try:
             if my_cursor is None:
                 my_cursor = cls.conn.cursor()
             query = ("SELECT %s FROM %s WHERE %s = %%s" %
-                     (', '.join([cls.id_column] + cls.other_columns),
+                     (', '.join(select_columns),
                       cls.table_name,
                       cls.id_column))
             my_cursor.execute(query, (int(_id),))
@@ -49,13 +49,15 @@ class SimpleDatabaseObject(DatabaseObject):
             if _cursor is None:
                 cls.conn.commit()
 
-        return cls(*row)
+        new_dict = dict(map(lambda p: (p[1], row[p[0]]),
+                            enumerate(select_columns)))
+        return cls(**new_dict)
 
     @classmethod
-    def new(cls, *args, **kwargs):
-        insert_columns = cls.other_columns
-        select_columns = [cls.id_column] + cls.other_columns
-        insert_values = args
+    def new(cls, **kwargs):
+        insert_columns = sorted(set(cls.other_columns) & set(kwargs.keys()))
+        select_columns = [cls.id_column] + insert_columns
+        insert_values = map(lambda k: kwargs[k], insert_columns)
 
         insert_columns_string = ', '.join(insert_columns)
         select_columns_string = ', '.join(select_columns)
@@ -82,7 +84,9 @@ class SimpleDatabaseObject(DatabaseObject):
             if _cursor is None:
                 cls.conn.commit()
 
-        return cls(*row)
+        new_dict = dict(map(lambda p: (p[1], row[p[0]]),
+                            enumerate(select_columns)))
+        return cls(**new_dict)
 
     @classmethod
     def load_ids(cls, **kwargs):
@@ -114,8 +118,6 @@ class SimpleDatabaseObject(DatabaseObject):
 
         update_values = map(lambda name: getattr(self, name), update_columns)
         update_values.append(getattr(self, self.__class__.id_column))
-
-        print update_sql
 
         my_cursor = _cursor = kwargs.get('_cursor', None)
         try:

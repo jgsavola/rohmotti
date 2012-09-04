@@ -91,6 +91,10 @@ div.comment {
     border-right: none;
 }
 
+div.hakutulos b {
+    color: #FF0000;
+}
+
 /*
  * Lainattu täältä: http://www.alistapart.com/articles/prettyaccessibleforms/
  */

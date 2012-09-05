@@ -62,13 +62,20 @@ class Kohde(SimpleDatabaseObject):
 
         update_columns = sorted(set(Kohde.other_columns) & set(kwargs.keys()))
         update_columns_string = ', '.join(map(lambda col: "%s = %%s" % (col), update_columns))
-        update_values = map(lambda k: kwargs[k], update_columns)
+        sql_parameters = map(lambda k: kwargs[k], update_columns)
 
-        update_sql = ("UPDATE %s SET %s WHERE %s = %%s RETURNING %s" %
-                      (Kohde.table_name,
-                       update_columns_string,
-                       Kohde.id_column,
-                       select_columns_string))
+        update_or_select_sql = None
+        if len(update_columns) == 0:
+            update_or_select_sql = ("SELECT %s FROM %s WHERE %s = %%s" %
+                          (select_columns_string,
+                           Kohde.table_name,
+                           Kohde.id_column))
+        else:
+            update_or_select_sql = ("UPDATE %s SET %s WHERE %s = %%s RETURNING %s" %
+                          (Kohde.table_name,
+                           update_columns_string,
+                           Kohde.id_column,
+                           select_columns_string))
 
         my_cursor = _cursor = kwargs.get('_cursor', None)
 
@@ -89,9 +96,9 @@ class Kohde(SimpleDatabaseObject):
             kwargs['_cursor'] = my_cursor
             super_object = super(Kohde, cls).new(**kwargs)
 
-            update_values.append(getattr(super_object, super_object.id_column))
+            sql_parameters.append(getattr(super_object, super_object.id_column))
 
-            my_cursor.execute(update_sql, update_values)
+            my_cursor.execute(update_or_select_sql, sql_parameters)
 
             row = my_cursor.fetchone()
         except:

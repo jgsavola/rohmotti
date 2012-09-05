@@ -20,7 +20,7 @@ class Handler:
 
         if self.conf['request_method'] == 'GET':
             if kuva_id is not None:
-                kuva = Kommentti.load_from_database(kommentti_id = kuva_id)
+                kuva = Kommentti.load_from_database(kuva_id)
 
                 #
                 # Koska tietokannassa on aikaleima kuvalle, täytetään

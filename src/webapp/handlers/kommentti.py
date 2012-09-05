@@ -43,7 +43,7 @@ class Handler:
             if kuva_input is not None and len(kuva_input) > 0:
                 kuva = kuva_input
 
-            kommentti = Kommentti.new(self.kohde_id, teksti, kuva)
+            kommentti = Kommentti.new(kohde_id=self.kohde_id, teksti=teksti, kuva=kuva)
 
             self.redirect_after_post("%s/%s/%d?comment_created=%d" %
                                      (self.conf['script_name'],
@@ -58,7 +58,7 @@ class Handler:
             # hävittää.
             #
             if self.kommentti_id is not None:
-                Kommentti.delete(kommentti_id=self.kommentti_id)
+                Kommentti.delete(self.kommentti_id)
 
                 self.redirect_after_post("%s/%s/%d?comment_deleted=%d" %
                                          (self.conf['script_name'],

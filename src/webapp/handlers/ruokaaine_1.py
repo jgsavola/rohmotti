@@ -25,10 +25,10 @@ class Handler:
         if self.conf['request_method'] == 'GET':
             self.headers.append('Content-Type: text/html; charset=UTF-8')
 
-            self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id = ruokaaine_id)
+            self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id)
             self.render_page()
         elif self.conf['request_method'] == 'DELETE':
-            Ruokaaine.delete(ruokaaine_id=ruokaaine_id)
+            Ruokaaine.delete(ruokaaine_id)
 
             self.redirect_after_post("%s/ruokaaine?deleted=%d" % (self.conf['script_name'], ruokaaine_id))
 

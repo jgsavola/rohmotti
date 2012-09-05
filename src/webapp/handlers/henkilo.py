@@ -23,7 +23,7 @@ class Handler:
 
         if self.conf['request_method'] == 'GET':
             if henkilo_id is not None:
-                henkilo = Henkilo.load_from_database(henkilo_id = henkilo_id)
+                henkilo = Henkilo.load_from_database(henkilo_id)
 
                 kuva_link = ''
                 for kommentti in henkilo.kommentit:

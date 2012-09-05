@@ -30,7 +30,7 @@ class Handler:
         if self.conf['request_method'] == 'GET':
             self.mode = self.form.getvalue('mode')
 
-            self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
+            self.resepti = Resepti.load_from_database(self.resepti_id)
 
             self.render_page()
         elif self.conf['request_method'] == 'POST':
@@ -45,14 +45,14 @@ class Handler:
                 parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
                 valmistusohje = parser.parse_string(valmistusohje_unsafe)
 
-                self.resepti = Resepti.load_from_database(resepti_id = self.resepti_id)
+                self.resepti = Resepti.load_from_database(self.resepti_id)
 
                 self.resepti.valmistusohje = valmistusohje
                 self.resepti.save()
 
                 self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
         elif self.conf['request_method'] == 'DELETE':
-            Resepti.delete(resepti_id=self.resepti_id)
+            Resepti.delete(self.resepti_id)
 
             self.redirect_after_post("%s/resepti?deleted=%d" % (self.conf['script_name'], self.resepti_id))
 
@@ -138,7 +138,7 @@ class Handler:
     def create_ruokaaine_optiot(self):
         options = ''
         for ruokaaine_id in Ruokaaine.load_ids():
-            ruokaaine = Ruokaaine.load_from_database(ruokaaine_id=ruokaaine_id)
+            ruokaaine = Ruokaaine.load_from_database(ruokaaine_id)
             options = options + ("<option value=\"%d\">%s</option>\n" %
                                  (ruokaaine_id, ruokaaine.nimi))
 

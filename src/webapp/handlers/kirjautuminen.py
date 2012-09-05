@@ -92,7 +92,15 @@ class Handler:
 
             return True
 
-        henkilo = Henkilo.load_from_database(tunnus=tunnus_input)
+        henkilo_ids = Henkilo.load_ids(tunnus=tunnus_input)
+
+        # blääh
+        henkilo_id = None
+        for i in henkilo_ids:
+            henkilo_id = i
+            break
+
+        henkilo = Henkilo.load_from_database(henkilo_id)
         if henkilo is not None:
             #
             # Ota suola tietokannassa olevasta salasanasta ja aja
@@ -142,7 +150,17 @@ class Handler:
             self.parameters = { 'status': '<p class="status">Salasanat eroavat!</p>' }
             return True
 
-        henkilo = Henkilo.load_from_database(tunnus=tunnus)
+        henkilo_ids = Henkilo.load_ids(tunnus=tunnus)
+
+        # blääh
+        henkilo_id = None
+        for i in henkilo_ids:
+            henkilo_id = i
+            break
+
+        henkilo = None
+        if henkilo_id is not None:
+            henkilo = Henkilo.load_from_database(henkilo_id)
         if henkilo is not None:
             self.parameters = { 'status': '<p class="status">Tunnus "%s" on jo käytössä!</p>' % (tunnus) }
             return True
@@ -155,7 +173,7 @@ class Handler:
         #
         # Tallennetaan henkilo tietokantaan
         #
-        henkilo = Henkilo.new(nimi=henkilon_nimi, tunnus=tunnus, salasana=salasana_hash)
+        henkilo = Henkilo.new(nimi=henkilon_nimi, tunnus=tunnus, salasana=salasana_hash, omistajaa=None)
 
         #
         # Luo uusi istunto saman tien.

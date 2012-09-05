@@ -15,3 +15,7 @@ DatabaseObject.setDatabaseConnection(conn)
 kuva = Kommentti.load_from_database(3)
 
 print "kommentti: %d -- %s" % (kuva.kommentti_id, kuva.teksti)
+
+ids = Kommentti.load_ids(kohde_id=10)
+for i in ids:
+    print "  kommentti(kohde_id=10): %d" % (i)

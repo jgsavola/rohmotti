@@ -43,6 +43,16 @@ class Kohde(SimpleDatabaseObject):
         for i, k in enumerate(select_columns):
             setattr(super_object, k, row[i])
 
+        #
+        # Jokaiseen kohteeseen voi liittyä kommentti, joten ne voidaan
+        # käyttäjän avuksi ladata tässä.
+        #
+        kommentit = []
+        for kommentti_id in Kommentti.load_ids(kohde_id=_id):
+            kommentit.append(Kommentti.load_from_database(kommentti_id))
+
+        super_object.kommentit = kommentit
+
         return super_object
 
     @classmethod

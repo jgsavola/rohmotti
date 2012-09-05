@@ -1,48 +1,106 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import psycopg2
-from DatabaseObject import DatabaseObject
+from SimpleDatabaseObject import SimpleDatabaseObject
 
-class Kommentti(DatabaseObject):
-    def __init__(self, kommentti_id=None, kohde_id=None, teksti=None, kuva=None, aika=None):
-        self.kommentti_id = kommentti_id
-        self.kohde_id = kohde_id
-        self.teksti = teksti
-        self.kuva = kuva
-        self.aika = aika
+class Kommentti(SimpleDatabaseObject):
+    table_name = 'reseptiohjelma.kommentti'
+    id_column = 'kommentti_id'
+    other_columns = ['kohde_id', 'teksti', 'kuva', 'aika']
 
     @classmethod
-    def load_from_database(cls, kommentti_id):
-        cur = cls.conn.cursor()
-        cur.execute("SELECT kommentti_id, kohde_id, teksti, kuva, aika FROM reseptiohjelma.kommentti WHERE kommentti_id = %s", (int(kommentti_id),))
-        row = cur.fetchone()
-
-        kommentti = Kommentti(row[0], row[1], row[2], row[3], row[4])
-
-        return kommentti
+    def prepare_bytea(cls, data):
+        None if data is None else psycopg2.Binary(data)
 
     @classmethod
-    def new(cls, kohde_id=None, teksti=None, kuva=None):
-        cur = cls.conn.cursor()
-        cur.execute("INSERT INTO reseptiohjelma.kommentti (kohde_id, teksti, kuva) VALUES (%s, %s, %s) RETURNING kommentti_id, kohde_id, teksti, kuva, aika",
-                    (kohde_id,
-                     teksti,
-                     None if kuva is None else psycopg2.Binary(kuva)))
-        cls.conn.commit()
+    def load_ids(cls, **kwargs):
+        select_values = []
+        where_string = ''
 
-        row = cur.fetchone()
+        if kwargs.get('kohde_id', None) is not None:
+            where_string = 'WHERE kohde_id = %s'
+            select_values.append(kwargs.get('kohde_id'))
 
-        kommentti = Kommentti(*row)
+        select_sql = ("SELECT %s FROM %s %s ORDER BY %s" %
+                      (cls.id_column, cls.table_name, where_string, cls.id_column))
 
-        return kommentti
+        my_cursor = _cursor = kwargs.get('_cursor', None)
+        try:
+            if my_cursor is None:
+                my_cursor = cls.conn.cursor()
+            my_cursor.execute(select_sql, select_values)
+            for row in my_cursor.fetchall():
+                yield row[0]
+        except:
+            if _cursor is None:
+                cls.conn.rollback()
+            raise
+        else:
+            if _cursor is None:
+                cls.conn.commit()
 
     @classmethod
-    def load_ids(cls, kohde_id):
-        cur = cls.conn.cursor()
-        cur.execute("SELECT kommentti_id FROM reseptiohjelma.kommentti WHERE kohde_id = %s", (int(kohde_id),))
-        for row in cur.fetchall():
-            yield row[0]
+    def new(cls, **kwargs):
+        insert_columns = sorted(set(cls.other_columns) & set(kwargs.keys()))
+        select_columns = [cls.id_column] + insert_columns
 
-    @classmethod
-    def delete(cls, kommentti_id):
-        cur = cls.conn.cursor()
-        cur.execute("DELETE FROM reseptiohjelma.kommentti WHERE kommentti_id = %s", (kommentti_id,))
-        cls.conn.commit()
+        #
+        # Kikkaile bytea-arvo kuntoon.
+        #
+        insert_values = map(lambda k: kwargs[k] if k != 'kuva' else cls.prepare_bytea(kwargs[k]), insert_columns)
+
+        insert_columns_string = ', '.join(insert_columns)
+        select_columns_string = ', '.join(select_columns)
+
+        values_string = ', '.join(map(lambda x: '%s', insert_columns))
+
+        insert_sql = ("""INSERT INTO %s (%s) VALUES (%s) RETURNING %s""" %
+                      (cls.table_name, insert_columns_string, values_string, select_columns_string))
+
+        my_cursor = _cursor = kwargs.get('_cursor', None)
+
+        row = None
+        try:
+            if my_cursor is None:
+                my_cursor = cls.conn.cursor()
+            my_cursor.execute(insert_sql, (insert_values))
+
+            row = my_cursor.fetchone()
+        except:
+            if _cursor is None:
+                cls.conn.rollback()
+            raise
+        else:
+            if _cursor is None:
+                cls.conn.commit()
+
+        new_dict = dict(map(lambda p: (p[1], row[p[0]]),
+                            enumerate(select_columns)))
+        return cls(**new_dict)
+
+    def save(self, **kwargs):
+        """Tallenna (päivitä) olion tiedot tietokantaan."""
+
+        update_columns = self.__class__.other_columns
+        update_columns_string = ', '.join(map(lambda col: "%s = %%s" % (col), update_columns))
+        update_sql = ("UPDATE %s SET %s WHERE %s = %%s" %
+                      (self.__class__.table_name,
+                       update_columns_string,
+                       self.__class__.id_column))
+
+        update_values = map(lambda name: getattr(self, name) if name != 'kuva' else self.__class__.prepare_bytea(getattr(self, name)), update_columns)
+        update_values.append(getattr(self, self.__class__.id_column))
+
+        my_cursor = _cursor = kwargs.get('_cursor', None)
+        try:
+            if my_cursor is None:
+                my_cursor = self.__class__.conn.cursor()
+            my_cursor.execute(update_sql, update_values)
+        except:
+            if _cursor is None:
+                self.__class__.conn.rollback()
+            raise
+        else:
+            if _cursor is None:
+                self.__class__.conn.commit()

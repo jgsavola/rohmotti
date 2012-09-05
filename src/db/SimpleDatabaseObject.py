@@ -39,7 +39,7 @@ class SimpleDatabaseObject(DatabaseObject):
                      (', '.join(select_columns),
                       cls.table_name,
                       cls.id_column))
-            my_cursor.execute(query, (int(_id),))
+            my_cursor.execute(query, (_id,))
             row = my_cursor.fetchone()
         except:
             if _cursor is None:

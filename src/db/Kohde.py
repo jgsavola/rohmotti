@@ -162,14 +162,3 @@ class Kohde(SimpleDatabaseObject):
         else:
             if _cursor is None:
                 cls.conn.commit()
-
-class Resepti3(Kohde):
-    id_column = 'resepti_id'
-    other_columns = ['nimi', 'valmistusohje']
-    table_name = 'reseptiohjelma.resepti'
-
-class Kommentti(SimpleDatabaseObject):
-    id_column = 'kommentti_id'
-    other_columns = ['teksti', 'kuva', 'aika']
-    table_name = 'reseptiohjelma.kommentti'
-

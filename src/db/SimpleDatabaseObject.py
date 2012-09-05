@@ -90,12 +90,21 @@ class SimpleDatabaseObject(DatabaseObject):
 
     @classmethod
     def load_ids(cls, **kwargs):
+        where_columns = sorted(set(cls.other_columns) & set(kwargs.keys()))
+        where_values = map(lambda k: kwargs[k], where_columns)
+        where_columns_string = ' AND '.join(map(lambda col: "%s = %%s" % (col,), where_columns))
+
+        where_string = ''
+        if len(where_columns) > 0:
+            where_string = "WHERE %s" % (where_columns_string,)
+
         my_cursor = _cursor = kwargs.get('_cursor', None)
         try:
             if my_cursor is None:
                 my_cursor = cls.conn.cursor()
-            my_cursor.execute("SELECT %s FROM %s ORDER BY %s" %
-                        (cls.id_column, cls.table_name, cls.id_column))
+            my_cursor.execute("SELECT %s FROM %s %s ORDER BY %s" %
+                              (cls.id_column, cls.table_name, where_string, cls.id_column),
+                              where_values)
             for row in my_cursor.fetchall():
                 yield row[0]
         except:

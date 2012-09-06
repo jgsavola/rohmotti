@@ -28,7 +28,31 @@ div.timestamp {
     margin-top: 10px;
 }
 
-fieldset { border: none }
+fieldset {
+    border: none;
+}
+
+ul.reseptilista, ul.ruokaainelista {
+    margin-left: 0em;
+
+    list-style: none;
+
+    width: 600px;
+
+    -webkit-column-count: 3;
+    -webkit-column-gap: 10px;
+
+    -moz-column-count: 3;
+    -moz-column-gap: 10px;
+
+    column-count: 3;
+    column-gap: 2px;
+}
+
+ul.reseptilista, ul.ruokaainelista {
+    margin-left: 1em;
+    padding: 0;
+}
 
 ul.navigation {
     list-style-type: none;
@@ -39,10 +63,6 @@ ul.navigation {
 
 li.navigation {
     display: inline
-}
-
-ul.ruokaainelista {
-    list-style: none
 }
 
 span.navigation {

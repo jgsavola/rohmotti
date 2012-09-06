@@ -26,9 +26,12 @@ class Handler:
                        ruokaaine.ruokaaine_id,
                        ruokaaine.ruokaaine_id))
 
-            self.render_page()
+            self.redirect_after_post("%s?inserted=%d" % (self.conf['full_path'], ruokaaine.ruokaaine_id))
+        elif self.conf['request_method'] == 'DELETE':
+            ruokaaine_id_input = self.form.getvalue('id')
+            ruokaaine_id = int(ruokaaine_id_input)
 
-            self.parameters.update({ 'status': status })
+            self.redirect_after_post("%s?deleted=%d" % (self.conf['full_path'], ruokaaine_id))
 
         return [ self.headers, self.parameters ]
 
@@ -64,3 +67,7 @@ class Handler:
         ruokaainelista += "</ul>\n"
 
         self.parameters.update({'ruokaainelista': ruokaainelista, 'status': status})
+
+    def redirect_after_post(self, location):
+        self.headers.append('Status: 303 See Other')
+        self.headers.append("Location: %s" % (location))

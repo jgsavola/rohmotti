@@ -91,8 +91,16 @@ div.comment {
     border-right: none;
 }
 
+div.hakutulos {
+    margin-left: 1em;
+}
+
 div.hakutulos b {
     color: #FF0000;
+}
+
+input.haku {
+    width: 40em;
 }
 
 /*

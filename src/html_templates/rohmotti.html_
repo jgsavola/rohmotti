@@ -24,7 +24,7 @@
 
     <p>Onko porkkanoita? Rohmotti etsii sinulle kaikki ruoka-ohjeet,
     joihin
-    käytetään <a href="${REQUEST_URI}/haku/ruokaaine?q=porkkana">porkkanoita</a>.</p>
+    käytetään <a href="${REQUEST_URI}/haku?q=porkkana">porkkanoita</a>.</p>
 
     <p>Rohmotissa voit lisätä kuvallisia
       <a href="${REQUEST_URI}/kommentti">kommentteja</a> ruoka-aineille,

@@ -10,10 +10,24 @@
 
     <h1>Haku</h1>
 
+    <form class="cmxform" id="searchform" action="${REQUEST_URI}" method="get">
+      <fieldset>
+	<legend></legend>
+	<ol>
+	  <li>
+	    <input class="haku" id="searchforminput" type="text" name="q" id="q" value="${query}" autofocus />
+	  </li>
+	  <li>
+	    <input type="submit" value="Hae!" />
+	  </li>
+	</ol>
+      </fieldset>
+    </form>
+
     <div class="hakutulos">
         ${hakutulos}
     </div>
 
   </body>
-</html>
 
+</html>

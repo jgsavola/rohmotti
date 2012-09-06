@@ -45,8 +45,11 @@ INSERT INTO ruokaaine (nimi) VALUES
 CREATE TABLE resepti(
        resepti_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('RE'),
        nimi text NOT NULL UNIQUE,
-       valmistusohje text NOT NULL
+       valmistusohje text NOT NULL,
+       tsv tsvector
 );
+
+CREATE INDEX resepti_tsv_gin_index ON resepti USING gin (tsv);
 
 CREATE FUNCTION hae_resepti_id(nimi text) RETURNS int AS
 $$
@@ -122,11 +125,97 @@ CREATE TABLE henkilo(
        tunnus text NOT NULL UNIQUE,
        salasana text NOT NULL
 );
-       
+
 CREATE TABLE rajoitus(
        ruokaaine_id int NOT NULL REFERENCES ruokaaine (ruokaaine_id),
        henkilo_id int NOT NULL REFERENCES henkilo (henkilo_id),
        rajoitus text NOT NULL
 );
+
+--
+-- Funktioita
+--
+
+--
+-- array_accum-aggregaattia tarvitaan tekstien koostamiseen tulos riveistä.
+--
+CREATE AGGREGATE array_accum (anyelement)
+(
+    sfunc = array_append,
+    stype = anyarray,
+    initcond = '{}'
+);
+
+--
+-- Funktiota muodosta_reseptin_teksti käytetään tekstihaun lähtöaineena.
+--
+CREATE OR REPLACE FUNCTION muodosta_reseptin_teksti(resepti_id_in int) RETURNS text AS
+$$
+DECLARE
+	koko_teksti_ text;
+	valmistusohje_ text;
+	ruokaaineet_ text;
+	nimi_ text;
+BEGIN
+	koko_teksti_ := '';
+
+	SELECT resepti.valmistusohje, resepti.nimi FROM resepti WHERE resepti.resepti_id = resepti_id_in INTO valmistusohje_, nimi_;
+
+	koko_teksti_ := valmistusohje_;
+
+	SELECT array_to_string(array_accum(rivi), E'\n')
+	FROM (SELECT resepti_ruokaaine.maara
+	     	    || ' ' || resepti_ruokaaine.mittayksikko
+		    || ' ' || ruokaaine.nimi AS rivi
+		    FROM resepti_ruokaaine
+		        JOIN ruokaaine
+			    ON resepti_ruokaaine.ruokaaine_id = ruokaaine.ruokaaine_id
+                    WHERE resepti_ruokaaine.resepti_id = resepti_id_in
+                    ORDER BY resepti_ruokaaine.jarjestys, resepti_ruokaaine.ruokaaine_id
+              ) a
+        INTO ruokaaineet_;
+
+	RETURN nimi_ || E'\n\n' || COALESCE(ruokaaineet_, '') || COALESCE(E'\n\n' || valmistusohje_, '');
+END
+$$
+LANGUAGE plpgsql STRICT;
+
+-- SELECT muodosta_reseptin_teksti(10);
+
+CREATE OR REPLACE FUNCTION resepti_tsv_trigger() RETURNS TRIGGER AS $$
+BEGIN
+	--
+	-- Jos tsv-sarake muuttuu "resepti"-taulun päivityksessä,
+	-- oletetaan että muutos on liipaisimen aiheuttama ja
+	-- ohitetaan tapahtuma. Muuten joudumme rekursioansaan.
+	--
+	IF TG_TABLE_NAME = 'resepti' AND TG_OP = 'UPDATE' THEN
+	        IF NEW.tsv IS DISTINCT FROM OLD.tsv THEN
+		        RETURN NEW;
+                END IF;
+        END IF;
+
+	UPDATE resepti
+            SET tsv = to_tsvector('pg_catalog.finnish',
+	                          COALESCE(muodosta_reseptin_teksti(NEW.resepti_id), ''::text))
+            WHERE resepti.resepti_id = NEW.resepti_id;
+
+        RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tsvectorupdate ON resepti;
+CREATE TRIGGER tsvectorupdate AFTER INSERT OR UPDATE
+ON resepti FOR EACH ROW EXECUTE PROCEDURE resepti_tsv_trigger();
+
+DROP TRIGGER IF EXISTS tsvectorupdate ON resepti_ruokaaine;
+CREATE TRIGGER tsvectorupdate AFTER INSERT OR UPDATE
+ON resepti_ruokaaine FOR EACH ROW EXECUTE PROCEDURE resepti_tsv_trigger();
+
+--
+-- FIXME: jos ruokaaineen nimi muuttuu, pitäisi resepti.tsv päivittää:
+--        tarvitaan siis vielä yksi uusi liipaisinfunktio
+--        ruokaaine-taululle.
+--
 
 COMMIT;

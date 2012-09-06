@@ -60,7 +60,7 @@ class Handler:
             ruokaainelista += ("""<li class="ruokaainelista">
                                     <a href="%s/%d">%s</a> %s
                                   </li>""" %
-                               (self.conf['request_uri'],
+                               (self.conf['full_path'],
                                 ruokaaine.ruokaaine_id,
                                 cgi.escape(ruokaaine.nimi),
                                 delete_form))

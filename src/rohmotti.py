@@ -145,7 +145,7 @@ def main():
     handler_return = None
     if handler is not None:
         try:
-            handler_return = handler.render()
+            handler_return = handler.handle()
         except Exception:
             if mode == 'production':
                 cgi.test()

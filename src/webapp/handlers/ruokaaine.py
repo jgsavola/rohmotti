@@ -2,40 +2,18 @@
 # -*- coding: utf-8 -*- 
 
 import cgi
+from basehandler import BaseHandler
 from db.Ruokaaine import Ruokaaine
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, form, conf):
         self.form = form
         self.conf = conf
 
-    def render(self):
         self.headers = []
-        self.headers.append('Content-Type: text/html; charset=UTF-8')
-
         self.parameters = {}
 
-        if self.conf['request_method'] == 'GET':
-            self.render_page()
-        elif self.conf['request_method'] == 'POST':
-            nimi = self.form.getvalue("nimi")
-
-            ruokaaine = Ruokaaine.new(nimi=nimi)
-            status = ("<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" %
-                      (self.conf['request_uri'],
-                       ruokaaine.ruokaaine_id,
-                       ruokaaine.ruokaaine_id))
-
-            self.redirect_after_post("%s?inserted=%d" % (self.conf['full_path'], ruokaaine.ruokaaine_id))
-        elif self.conf['request_method'] == 'DELETE':
-            ruokaaine_id_input = self.form.getvalue('id')
-            ruokaaine_id = int(ruokaaine_id_input)
-
-            self.redirect_after_post("%s?deleted=%d" % (self.conf['full_path'], ruokaaine_id))
-
-        return [ self.headers, self.parameters ]
-
-    def render_page(self):
+    def get(self):
         status = ''
 
         ruokaaine_id_input = self.form.getvalue('inserted')
@@ -66,8 +44,20 @@ class Handler:
                                 delete_form))
         ruokaainelista += "</ul>\n"
 
+        self.headers.append('Content-Type: text/html; charset=UTF-8')
         self.parameters.update({'ruokaainelista': ruokaainelista, 'status': status})
 
-    def redirect_after_post(self, location):
-        self.headers.append('Status: 303 See Other')
-        self.headers.append("Location: %s" % (location))
+        return [ self.headers, self.parameters ]
+
+    def post(self):
+        nimi = self.form.getvalue("nimi")
+
+        ruokaaine = Ruokaaine.new(nimi=nimi)
+        status = ("<p class=\"status\">Lisätty: <a href=\"%s/%d\">%d</a></p>" %
+                  (self.conf['request_uri'],
+                   ruokaaine.ruokaaine_id,
+                   ruokaaine.ruokaaine_id))
+
+        self.redirect_after_post("%s?inserted=%d" % (self.conf['full_path'], ruokaaine.ruokaaine_id))
+
+        return [ self.headers, self.parameters ]

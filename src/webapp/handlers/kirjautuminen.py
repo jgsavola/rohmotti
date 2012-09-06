@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 import cgi
 import base64
@@ -12,60 +12,81 @@ from db.Henkilo import Henkilo
 from util import salasana
 from util.sessio import Sessio
 from util.html_parser import CommentHTMLParser
+from basehandler import BaseHandler
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, form, conf):
         self.form = form
         self.conf = conf
 
-    def render(self):
         self.sessio = self.conf['sessio']
 
         self.headers = []
-        self.headers.append('Content-Type: text/html; charset=UTF-8')
-
         self.parameters = {}
 
-        if self.conf['request_method'] == 'GET':
-            self.handle_get()
-        elif self.conf['request_method'] == 'POST':
-            self.handle_post()
+    def get(self):
+        status_message = ''
 
-        return [ self.headers, self.parameters ]
+        self.headers.append('Content-Type: text/html; charset=UTF-8')
 
-    def handle_get(self):
-        if self.sessio is None:
-            self.parameters = { 'status': '<p class="status">Käyttäjä ei ole kirjautunut.</p>' }
-            return True
 
-        #
-        # Tarkista, että sessio on validi.
-        #
-        henkilo = Henkilo.load_from_database(self.sessio.henkilo_id)
+        status = self.form.getvalue('status')
+        if status is None:
+            if self.sessio is None:
+                self.set_status('Käyttäjä ei ole kirjautunut.')
+                return [ self.headers, self.parameters ]
 
-        if self.sessio.remote_addr != self.conf['effective_remote_addr']:
-            self.parameters = { 'status': '<p class="status">Session ip-osoite ei täsmää käyttäjän ip-osoitteen kanssa!</p><pre>%s</pre>' % (cgi.escape(str(self.sessio))) }
-        elif henkilo is None:
-            self.parameters = { 'status': '<p class="status">Session käyttäjää %d ei löydy tietokannasta!</p>' % (self.sessio.henkilo_id) }
+            #
+            # Tarkista, että sessio on validi.
+            #
+            henkilo = Henkilo.load_from_database(self.sessio.henkilo_id)
+
+            if self.sessio.remote_addr != self.conf['effective_remote_addr']:
+                self.set_status('Session ip-osoite ei täsmää käyttäjän ip-osoitteen kanssa!')
+            elif henkilo is None:
+                self.set_status('Session käyttäjää %d ei löydy tietokannasta!' % self.sessio.henkilo_id)
+            else:
+                self.set_status('Tuttu henkilö %s</p>' % (self.sessio))
+
+            return [ self.headers, self.parameters ]
         else:
-            self.parameters = { 'status': '<p class="status">Tuttu henkilö %s</p>' % (self.sessio) }
+            if status == 'error':
+                self.set_status('Virheellinen toiminto')
+            elif status == 'logged_out':
+                self.set_status('Uloskirjautuminen OK.')
+            elif status == 'logged_in':
+                self.set_status('Tervetuloa %d.' % (self.sessio.henkilo_id))
+            elif status == 'password_mismatch':
+                self.set_status('Salasanat eroavat!')
+            elif status == 'missing_input':
+                self.set_status('Anna tunnus ja salasana!')
+            elif status == 'login_failed':
+                self.set_status('Kirjautuminen epäonnistui')
+            elif status == 'missing_newuser_input':
+                self.set_status('Ole hyvä ja täytä kaikki kentät!')
+            elif status == 'username_exists':
+                self.set_status('Tunnus on jo käytössä!')
+            elif status == 'welcome':
+                self.set_status('Tunnus luotu, tervetuloa!')
 
-        return True
+            return [ self.headers, self.parameters ]
 
-    def handle_post(self):
+    def post(self):
+        status = None
+
         action_input = self.form.getvalue("action")
         if action_input is None or (action_input != 'login' and action_input != 'logout' and action_input != 'newuser'):
-            self.parameters = { 'status': '<p class="status">Virheellinen toiminto.</p>' }
-            return True
-
-        if action_input == 'logout':
-            return self.handle_logout()
+            status = 'error'
+        elif action_input == 'logout':
+            status = self.handle_logout()
         elif action_input == 'login':
-            return self.handle_login()
+            status = self.handle_login()
         elif action_input == 'newuser':
-            return self.handle_newuser()
+            status = self.handle_newuser()
 
-        return True
+        self.redirect_after_post("%s?status=%s" % (self.conf['full_path'], status))
+
+        return [ self.headers, self.parameters ]
 
     def handle_logout(self):
         if self.sessio is None:
@@ -81,16 +102,16 @@ class Handler:
             self.headers.append(C.output())
             self.parameters = { 'status': '<p class="status">Uloskirjautuminen tehty.</p>' }
 
-        return True
+        return 'logged_out'
 
     def handle_login(self):
         tunnus_input = self.form.getvalue("tunnus")
         salasana_input = self.form.getvalue("salasana")
 
         if tunnus_input is None or salasana_input is None:
-            self.parameters = { 'status': '<p class="status">Anna tunnus ja salasana!</p>' }
+            self.parameters = { 'status': '<p class="status"></p>' }
 
-            return True
+            return 'missing_input'
 
         henkilo_ids = Henkilo.load_ids(tunnus=tunnus_input)
 
@@ -119,9 +140,9 @@ class Handler:
                 #
                 # Kaikki OK!
                 #
-                return True
+                return 'logged_in'
 
-        self.parameters = { 'status': '<p class="status">Kirjautumisyritys hyvä, mutta ei riittävä!</p>' }
+        return 'login_failed'
 
     def handle_newuser(self):
         henkilon_nimi_input = self.form.getvalue("henkilon_nimi")
@@ -134,8 +155,7 @@ class Handler:
             salasana1_input is None or
             salasana2_input is None):
             self.parameters = { 'status': '<p class="status">Ole hyvä ja täytä kaikki kentät!</p>' }
-
-            return True
+            return 'missing_newuser_input'
 
         #
         # Siivoa tekstimuotoiset parameterit. Nimissä ja tunnuksissa
@@ -147,8 +167,7 @@ class Handler:
         tunnus = parser.parse_string(tunnus_input)
 
         if salasana1_input != salasana2_input:
-            self.parameters = { 'status': '<p class="status">Salasanat eroavat!</p>' }
-            return True
+            return 'password_mismatch'
 
         henkilo_ids = Henkilo.load_ids(tunnus=tunnus)
 
@@ -163,7 +182,7 @@ class Handler:
             henkilo = Henkilo.load_from_database(henkilo_id)
         if henkilo is not None:
             self.parameters = { 'status': '<p class="status">Tunnus "%s" on jo käytössä!</p>' % (tunnus) }
-            return True
+            return 'username_exists'
 
         #
         # Tehdään salasanasta hajautussumma.
@@ -181,9 +200,13 @@ class Handler:
         self.create_new_session(henkilo_id=henkilo.henkilo_id)
 
         self.parameters = { 'status': '<p class="status">Tunnus luotu, tervetuloa %s!</p>' % (tunnus) }
-        return True
+
+        return 'welcome'
 
     def create_new_session(self, henkilo_id):
         timestamp = int(math.floor(time.time()))
         self.sessio = Sessio(henkilo_id=henkilo_id, start_timestamp=timestamp, remote_addr=self.conf['effective_remote_addr'])
         self.headers.append(self.sessio.create_cookie().output())
+
+    def set_status(self, status):
+        self.parameters.update({ 'status': '<p class="status">%s</p>' % (status)})

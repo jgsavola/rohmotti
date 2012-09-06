@@ -4,6 +4,7 @@
 import re
 import cgi
 import textwrap
+from basehandler import BaseHandler
 from db.Resepti import Resepti
 from db.ReseptiRuokaaine import ReseptiRuokaaine
 from db.Ruokaaine import Ruokaaine
@@ -11,52 +12,18 @@ from db.Mittayksikko import Mittayksikko
 from db.Kommentti import Kommentti
 from util.html_parser import CommentHTMLParser
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, form, conf):
         self.form = form
         self.conf = conf
 
-    def render(self):
         self.headers = []
-        self.headers.append('Content-Type: text/html; charset=UTF-8')
-
         self.parameters = {}
 
         self.resepti_id = None
         m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
             self.resepti_id = int(m.group(1))
-
-        if self.conf['request_method'] == 'GET':
-            self.mode = self.form.getvalue('mode')
-
-            self.resepti = Resepti.load_from_database(self.resepti_id)
-
-            self.render_page()
-        elif self.conf['request_method'] == 'POST':
-            action = self.form.getvalue('action')
-
-            if action == 'updaterecipe':
-                valmistusohje_unsafe = self.form.getvalue('valmistusohje')
-
-                #
-                # Salli vain turvallisten HTML-tagien käyttö kommenteissa.
-                #
-                parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
-                valmistusohje = parser.parse_string(valmistusohje_unsafe)
-
-                self.resepti = Resepti.load_from_database(self.resepti_id)
-
-                self.resepti.valmistusohje = valmistusohje
-                self.resepti.save()
-
-                self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
-        elif self.conf['request_method'] == 'DELETE':
-            Resepti.delete(self.resepti_id)
-
-            self.redirect_after_post("%s/resepti?deleted=%d" % (self.conf['script_name'], self.resepti_id))
-
-        return [ self.headers, self.parameters ]
 
     def create_ruokaaineet_list(self, resepti_id):
         items = []
@@ -79,7 +46,11 @@ class Handler:
 
         return '\n'.join(items)
 
-    def render_page(self):
+    def get(self):
+        mode = self.form.getvalue('mode')
+
+        self.resepti = Resepti.load_from_database(self.resepti_id)
+
         kuva_link = ''
         for kommentti in self.resepti.kommentit:
             delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
@@ -100,7 +71,7 @@ class Handler:
         ruokaaineetlista = self.create_ruokaaineet_list(self.resepti.resepti_id)
 
         valmistusohje_text = "<div class=\"valmistusohje\">%s</div>" % (self.resepti.valmistusohje)
-        if self.mode == 'edit':
+        if mode == 'edit':
             valmistusohje_text = textwrap.dedent("""\
                 <form class="cmxform" action="%s%s" method="post">
                   <fieldset>
@@ -126,6 +97,7 @@ class Handler:
         elif self.form.getvalue('comment_created') is not None:
             status = '<p class="status">Uusi kommentti: %d</p>' % (int(self.form.getvalue('comment_created')))
 
+        self.headers.append('Content-Type: text/html; charset=UTF-8')
         self.parameters.update({ 'nimi': self.resepti.nimi,
                                  'resepti_id': self.resepti.resepti_id,
                                  'valmistusohje': valmistusohje_text,
@@ -134,6 +106,8 @@ class Handler:
                                  'ruokaaine_optiot': ruokaaine_optiot,
                                  'mittayksikko_optiot': mittayksikko_optiot,
                                  'status': status })
+
+        return [ self.headers, self.parameters ]
 
     def create_ruokaaine_optiot(self):
         options = ''
@@ -152,6 +126,30 @@ class Handler:
 
         return options
 
-    def redirect_after_post(self, location):
-        self.headers.append('Status: 303 See Other')
-        self.headers.append("Location: %s" % (location))
+    def post(self):
+        action = self.form.getvalue('action')
+
+        if action == 'updaterecipe':
+            valmistusohje_unsafe = self.form.getvalue('valmistusohje')
+
+            #
+            # Salli vain turvallisten HTML-tagien käyttö kommenteissa.
+            #
+            parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
+            valmistusohje = parser.parse_string(valmistusohje_unsafe)
+
+            self.resepti = Resepti.load_from_database(self.resepti_id)
+
+            self.resepti.valmistusohje = valmistusohje
+            self.resepti.save()
+
+            self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
+
+        return [ self.headers, self.parameters ]
+
+    def delete(self):
+        Resepti.delete(self.resepti_id)
+
+        self.redirect_after_post("%s/resepti?deleted=%d" % (self.conf['script_name'], self.resepti_id))
+
+        return [ self.headers, self.parameters ]

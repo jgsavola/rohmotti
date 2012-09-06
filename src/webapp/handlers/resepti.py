@@ -2,39 +2,22 @@
 # -*- coding: utf-8 -*- 
 
 import cgi
+from basehandler import BaseHandler
 from db.Resepti import Resepti
 from db.ReseptiRuokaaine import ReseptiRuokaaine
 from util.html_parser import CommentHTMLParser
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, form, conf):
         self.form = form
         self.conf = conf
 
-    def render(self):
-        self.sessio = self.conf['sessio']
-
         self.headers = []
         self.parameters = {}
 
-        if self.conf['request_method'] == 'GET':
-            self.headers.append('Content-Type: text/html; charset=UTF-8')
-            self.render_page()
-        elif self.conf['request_method'] == 'POST':
-            nimi = self.form.getvalue("nimi")
+        self.sessio = self.conf['sessio']
 
-            resepti = Resepti.new(nimi=nimi)
-
-            self.redirect_after_post("%s?inserted=%d" % (self.conf['full_path'], resepti.resepti_id))
-        elif self.conf['request_method'] == 'DELETE':
-            resepti_id_input = self.form.getvalue('id')
-            resepti_id = int(resepti_id_input)
-
-            self.redirect_after_post("%s?deleted=%d" % (self.conf['full_path'], resepti_id))
-
-        return [ self.headers, self.parameters ]
-
-    def render_page(self):
+    def get(self):
         status = ''
 
         resepti_id_input = self.form.getvalue('inserted')
@@ -59,8 +42,16 @@ class Handler:
             reseptilista += "<li><a href=\"%s/%d\">%s</a> %s</li>\n" % (self.conf['full_path'], resepti.resepti_id, cgi.escape(resepti.nimi), delete_form)
         reseptilista += "</ul>\n"
 
+        self.headers.append('Content-Type: text/html; charset=UTF-8')
         self.parameters.update({ 'reseptilista': reseptilista, 'status': status })
 
-    def redirect_after_post(self, location):
-        self.headers.append('Status: 303 See Other')
-        self.headers.append("Location: %s" % (location))
+        return [ self.headers, self.parameters ]
+
+    def post(self):
+        nimi = self.form.getvalue("nimi")
+
+        resepti = Resepti.new(nimi=nimi)
+
+        self.redirect_after_post("%s?inserted=%d" % (self.conf['full_path'], resepti.resepti_id))
+
+        return [ self.headers, self.parameters ]

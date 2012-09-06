@@ -3,38 +3,27 @@
 
 import re
 import cgi
+from basehandler import BaseHandler
 from db.Ruokaaine import Ruokaaine
 from db.Kommentti import Kommentti
 from util.html_parser import CommentHTMLParser
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, form, conf):
         self.form = form
         self.conf = conf
 
-    def render(self):
         self.headers = []
-
         self.parameters = {}
 
-        ruokaaine_id = None
+        self.ruokaaine_id = None
         m = re.match(r'.*/(\d+)', self.conf['path_info'])
         if m:
-            ruokaaine_id = int(m.group(1))
+            self.ruokaaine_id = int(m.group(1))
 
-        if self.conf['request_method'] == 'GET':
-            self.headers.append('Content-Type: text/html; charset=UTF-8')
+    def get(self):
+        self.ruokaaine = Ruokaaine.load_from_database(self.ruokaaine_id)
 
-            self.ruokaaine = Ruokaaine.load_from_database(ruokaaine_id)
-            self.render_page()
-        elif self.conf['request_method'] == 'DELETE':
-            Ruokaaine.delete(ruokaaine_id)
-
-            self.redirect_after_post("%s/ruokaaine?deleted=%d" % (self.conf['script_name'], ruokaaine_id))
-
-        return [ self.headers, self.parameters ]
-
-    def render_page(self):
         kuva_link = ''
         for kommentti in self.ruokaaine.kommentit:
             delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
@@ -57,11 +46,17 @@ class Handler:
         elif self.form.getvalue('comment_created') is not None:
             status = '<p class="status">Uusi kommentti: %d</p>' % (int(self.form.getvalue('comment_created')))
 
+        self.headers.append('Content-Type: text/html; charset=UTF-8')
         self.parameters.update({ 'nimi': cgi.escape(self.ruokaaine.nimi),
                                  'ruokaaine_id': self.ruokaaine.ruokaaine_id,
                                  'kuva': kuva_link,
                                  'status': status })
 
-    def redirect_after_post(self, location):
-        self.headers.append('Status: 303 See Other')
-        self.headers.append("Location: %s" % (location))
+        return [ self.headers, self.parameters ]
+
+    def delete(self):
+        Ruokaaine.delete(self.ruokaaine_id)
+
+        self.redirect_after_post("%s/ruokaaine?deleted=%d" % (self.conf['script_name'], self.ruokaaine_id))
+
+        return [ self.headers, self.parameters ]

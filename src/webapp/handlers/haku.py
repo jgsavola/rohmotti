@@ -3,30 +3,26 @@
 
 import re
 import cgi
+from basehandler import BaseHandler
 from db.DatabaseObject import DatabaseObject
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, form, conf):
         self.form = form
         self.conf = conf
 
-    def render(self):
         self.headers = []
-        self.headers.append('Content-Type: text/html; charset=UTF-8')
-
         self.parameters = {}
 
-        henkilo_id = None
-        m = re.match(r'.*/(\d+)', self.conf['path_info'])
-        if m:
-            henkilo_id = m.group(1)
-
+    def get(self):
         if self.conf['request_method'] == 'GET':
             q = self.form.getvalue('q')
 
             hakutulos = ''
             if q is not None:
                 hakutulos = self.do_query(q)
+
+            self.headers.append('Content-Type: text/html; charset=UTF-8')
             self.parameters.update({ 'hakutulos':  hakutulos, 'query': q or '' })
 
         return [ self.headers, self.parameters ]

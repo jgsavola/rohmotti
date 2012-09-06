@@ -10,7 +10,13 @@
 
     <h1>Haku</h1>
 
-    <form class="cmxform" id="searchform" action="${REQUEST_URI}" method="get">
+    <p>Haussa voit käyttää &amp; (ja), | (tai), ! (ei) ja () (sulkuja).</p>
+
+    <p>Esimerkki:
+       <a href="${FULL_PATH}?q=(kananmuna+%26+!lätyt)+|+keitto">(kananmuna &amp; !lätyt) | keitto</a>
+    </p>
+
+    <form class="cmxform" id="searchform" action="${FULL_PATH}" method="get">
       <fieldset>
 	<legend></legend>
 	<ol>

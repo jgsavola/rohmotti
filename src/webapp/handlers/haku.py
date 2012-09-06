@@ -24,35 +24,39 @@ class Handler:
         if self.conf['request_method'] == 'GET':
             q = self.form.getvalue('q')
 
-            query = """WITH query AS ( SELECT to_tsquery('finnish', %s) tsq ) SELECT nimi, resepti_id, ts_headline('finnish', muodosta_reseptin_teksti(resepti_id), query.tsq) FROM resepti, query WHERE resepti.tsv @@ query.tsq"""
-
-            output = []
-            try:
-                cur = DatabaseObject.conn.cursor()
-                cur.execute(query, (q,))
-
-                row = cur.fetchone()
-                while row is not None:
-                    nimi = row[0]
-                    resepti_id = row[1]
-                    headline = row[2]
-
-                    uri = """%s/resepti/%d""" % (self.conf['script_name'], resepti_id)
-                    html = ("""<p class="hakutulos"><a href="%s">%s</a> (%s)<br />%s</p>""" %
-                            (uri, nimi, uri, headline))
-                    output.append(html)
-                    row = cur.fetchone()
-            except:
-                DatabaseObject.conn.rollback()
-                raise
-            else:
-                DatabaseObject.conn.commit()
-
             hakutulos = ''
-            if len(output) == 0:
-                hakutulos = '<p>Ei osumia</p>'
-            else:
-                hakutulos = '\n'.join(output)
-            self.parameters.update({ 'hakutulos':  hakutulos, 'query': q })
+            if q is not None:
+                hakutulos = self.do_query(q)
+            self.parameters.update({ 'hakutulos':  hakutulos, 'query': q or '' })
 
         return [ self.headers, self.parameters ]
+
+    def do_query(self, q):
+        query = """WITH query AS ( SELECT to_tsquery('finnish', %s) tsq ) SELECT nimi, resepti_id, ts_headline('finnish', muodosta_reseptin_teksti(resepti_id), query.tsq) FROM resepti, query WHERE resepti.tsv @@ query.tsq"""
+
+        output = []
+        try:
+            cur = DatabaseObject.conn.cursor()
+            cur.execute(query, (q,))
+
+            row = cur.fetchone()
+            while row is not None:
+                nimi = row[0]
+                resepti_id = row[1]
+                headline = row[2]
+
+                uri = """%s/resepti/%d""" % (self.conf['script_name'], resepti_id)
+                html = ("""<p class="hakutulos"><a href="%s">%s</a> (%s)<br />%s</p>""" %
+                        (uri, nimi, uri, headline))
+                output.append(html)
+                row = cur.fetchone()
+        except:
+            DatabaseObject.conn.rollback()
+            raise
+        else:
+            DatabaseObject.conn.commit()
+
+        if len(output):
+            return '\n'.join(output)
+        else:
+            return '<p>Ei osumia</p>'

@@ -11,7 +11,7 @@ class Kommentti(SimpleDatabaseObject):
 
     @classmethod
     def prepare_bytea(cls, data):
-        None if data is None else psycopg2.Binary(data)
+        return None if data is None else psycopg2.Binary(data)
 
     @classmethod
     def load_ids(cls, **kwargs):

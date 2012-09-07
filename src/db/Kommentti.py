@@ -43,7 +43,7 @@ class Kommentti(SimpleDatabaseObject):
     @classmethod
     def new(cls, **kwargs):
         insert_columns = sorted(set(cls.other_columns) & set(kwargs.keys()))
-        select_columns = [cls.id_column] + insert_columns
+        select_columns = [cls.id_column] + cls.other_columns
 
         #
         # Kikkaile bytea-arvo kuntoon.

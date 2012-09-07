@@ -116,7 +116,8 @@ CREATE TABLE kommentti(
        kohde_id int NOT NULL REFERENCES kohde (kohde_id),
        teksti text,
        kuva bytea,
-       aika timestamp with time zone NOT NULL DEFAULT NOW()
+       aika timestamp with time zone NOT NULL DEFAULT NOW(),
+       omistaja int REFERENCES henkilo (henkilo_id) -- Pitäisi olla NOT NULL
 );
 
 CREATE TABLE henkilo(

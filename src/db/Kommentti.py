@@ -7,7 +7,7 @@ from SimpleDatabaseObject import SimpleDatabaseObject
 class Kommentti(SimpleDatabaseObject):
     table_name = 'reseptiohjelma.kommentti'
     id_column = 'kommentti_id'
-    other_columns = ['kohde_id', 'teksti', 'kuva', 'aika']
+    other_columns = ['kohde_id', 'teksti', 'kuva', 'aika', 'omistaja']
 
     @classmethod
     def prepare_bytea(cls, data):

@@ -185,12 +185,16 @@ LANGUAGE plpgsql STRICT;
 CREATE OR REPLACE FUNCTION resepti_tsv_trigger() RETURNS TRIGGER AS $$
 BEGIN
 	--
-	-- Jos tsv-sarake muuttuu "resepti"-taulun päivityksessä,
+	-- Jos tsv-sarake ei muutu "resepti"-taulun päivityksessä,
 	-- oletetaan että muutos on liipaisimen aiheuttama ja
 	-- ohitetaan tapahtuma. Muuten joudumme rekursioansaan.
+        --
+        -- Tämän pitäisi olla riittävä, koska tsv-sarakkeesta ei
+        -- pitäisi tulla syötettä reseptin tekstiin,
+        -- ts. feedback-silmukka ei ole mahdollinen.
 	--
 	IF TG_TABLE_NAME = 'resepti' AND TG_OP = 'UPDATE' THEN
-	        IF NEW.tsv IS DISTINCT FROM OLD.tsv THEN
+	        IF NEW.tsv IS NOT DISTINCT FROM OLD.tsv THEN
 		        RETURN NEW;
                 END IF;
         END IF;

@@ -14,7 +14,7 @@ class ReseptiRuokaaine(DatabaseObject):
     @classmethod
     def load_from_database(cls, resepti_id, ruokaaine_id):
         cur = cls.conn.cursor()
-        cur.execute("SELECT resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko FROM reseptiohjelma.resepti_ruokaaine WHERE resepti_id = %s AND ruokaaine_id = %s", (int(resepti_id), int(ruokaaine_id)))
+        cur.execute("SELECT resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko FROM resepti_ruokaaine WHERE resepti_id = %s AND ruokaaine_id = %s", (int(resepti_id), int(ruokaaine_id)))
         row = cur.fetchone()
 
         resepti   = Resepti.load_from_database(row[0])
@@ -27,7 +27,7 @@ class ReseptiRuokaaine(DatabaseObject):
     @classmethod
     def new(cls, resepti=None, ruokaaine=None, jarjestys=None, maara=None, mittayksikko=None):
         cur = cls.conn.cursor()
-        cur.execute("INSERT INTO reseptiohjelma.resepti_ruokaaine (resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko) VALUES (%s, %s, %s, %s, %s) RETURNING resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko", (resepti.resepti_id, ruokaaine.ruokaaine_id, jarjestys, maara, mittayksikko))
+        cur.execute("INSERT INTO resepti_ruokaaine (resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko) VALUES (%s, %s, %s, %s, %s) RETURNING resepti_id, ruokaaine_id, jarjestys, maara, mittayksikko", (resepti.resepti_id, ruokaaine.ruokaaine_id, jarjestys, maara, mittayksikko))
         cls.conn.commit()
 
         row = cur.fetchone()
@@ -42,6 +42,6 @@ class ReseptiRuokaaine(DatabaseObject):
     @classmethod
     def load_ids(cls, resepti_id, ruokaaine_id):
         cur = cls.conn.cursor()
-        cur.execute("SELECT resepti_id, ruokaaine_id FROM reseptiohjelma.resepti_ruokaaine WHERE resepti_id = %s", (int(resepti_id),))
+        cur.execute("SELECT resepti_id, ruokaaine_id FROM resepti_ruokaaine WHERE resepti_id = %s", (int(resepti_id),))
         for row in cur.fetchall():
             yield (row[0], row[1])

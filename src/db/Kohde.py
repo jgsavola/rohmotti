@@ -7,7 +7,7 @@ from Kommentti import Kommentti
 from SimpleDatabaseObject import SimpleDatabaseObject
 
 class Kohde(SimpleDatabaseObject):
-    table_name = 'reseptiohjelma.kohde'
+    table_name = 'kohde'
     id_column = 'kohde_id'
     other_columns = ['luotu', 'omistaja']
 

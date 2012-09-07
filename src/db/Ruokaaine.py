@@ -5,4 +5,4 @@ from Kommentti import Kommentti
 class Ruokaaine(Kohde):
     id_column = 'ruokaaine_id'
     other_columns = ['nimi']
-    table_name = 'reseptiohjelma.ruokaaine'
+    table_name = 'ruokaaine'

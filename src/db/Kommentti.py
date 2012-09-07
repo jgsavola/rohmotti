@@ -5,7 +5,7 @@ import psycopg2
 from SimpleDatabaseObject import SimpleDatabaseObject
 
 class Kommentti(SimpleDatabaseObject):
-    table_name = 'reseptiohjelma.kommentti'
+    table_name = 'kommentti'
     id_column = 'kommentti_id'
     other_columns = ['kohde_id', 'teksti', 'kuva', 'aika', 'omistaja']
 

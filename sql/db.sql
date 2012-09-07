@@ -1,16 +1,16 @@
 BEGIN;
 
-DROP SCHEMA IF EXISTS reseptiohjelma CASCADE;
+DROP SCHEMA IF EXISTS rohmotti CASCADE;
 
-CREATE SCHEMA reseptiohjelma;
+CREATE SCHEMA rohmotti;
 
-SET search_path TO reseptiohjelma, "$user", public;
+SET search_path TO rohmotti, "$user", public;
 
 CREATE TABLE kohde(
        kohde_id serial PRIMARY KEY,
        tyyppi text NOT NULL CHECK (tyyppi IN ('RA', 'RE', 'AT', 'HE')),
        luotu timestamp with time zone NOT NULL DEFAULT now(),
-       omistaja int REFERENCES henkilo (henkilo_id) -- Pitäisi olla NOT NULL
+       omistaja int -- Pitäisi olla NOT NULL
 );
 
 CREATE FUNCTION luo_uusi_kohde(text) RETURNS int AS
@@ -111,6 +111,13 @@ CREATE TABLE ateria(
        aika timestamp with time zone NOT NULL
 );
 
+CREATE TABLE henkilo(
+       henkilo_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('HE'),
+       nimi text NOT NULL,
+       tunnus text NOT NULL UNIQUE,
+       salasana text NOT NULL
+);
+
 CREATE TABLE kommentti(
        kommentti_id serial PRIMARY KEY,
        kohde_id int NOT NULL REFERENCES kohde (kohde_id),
@@ -120,18 +127,16 @@ CREATE TABLE kommentti(
        omistaja int REFERENCES henkilo (henkilo_id) -- Pitäisi olla NOT NULL
 );
 
-CREATE TABLE henkilo(
-       henkilo_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('HE'),
-       nimi text NOT NULL,
-       tunnus text NOT NULL UNIQUE,
-       salasana text NOT NULL
-);
-
 CREATE TABLE rajoitus(
        ruokaaine_id int NOT NULL REFERENCES ruokaaine (ruokaaine_id),
        henkilo_id int NOT NULL REFERENCES henkilo (henkilo_id),
        rajoitus text NOT NULL
 );
+
+--
+-- Siirretty tänne syklisen riippuvuuden takia.
+--
+ALTER TABLE kohde ADD CONSTRAINT kohde_omistaja_fkey FOREIGN KEY (omistaja) REFERENCES henkilo(henkilo_id);
 
 --
 -- Funktioita

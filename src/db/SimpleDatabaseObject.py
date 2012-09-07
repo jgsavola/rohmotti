@@ -56,7 +56,7 @@ class SimpleDatabaseObject(DatabaseObject):
     @classmethod
     def new(cls, **kwargs):
         insert_columns = sorted(set(cls.other_columns) & set(kwargs.keys()))
-        select_columns = [cls.id_column] + insert_columns
+        select_columns = [cls.id_column] + cls.other_columns
         insert_values = map(lambda k: kwargs[k], insert_columns)
 
         insert_columns_string = ', '.join(insert_columns)

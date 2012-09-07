@@ -12,6 +12,8 @@
 
     ${status}
 
+    <div class="kohdeinfo"><div class="kohdeinfofloat">${kohdeinfo}</div></div>
+
     <div class="ruokaaineetlista">${ruokaaineetlista}</div>
 
     <div class="commentform">

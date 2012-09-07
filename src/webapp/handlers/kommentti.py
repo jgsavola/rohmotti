@@ -3,17 +3,13 @@
 
 import re
 import cgi
-from basehandler import BaseHandler
+from basehandlerwithsession import BaseHandlerWithSession
 from db.Kommentti import Kommentti
 from util.html_parser import CommentHTMLParser
 
-class Handler(BaseHandler):
+class Handler(BaseHandlerWithSession):
     def __init__(self, form, conf):
-        self.form = form
-        self.conf = conf
-
-        self.headers = []
-        self.parameters = {}
+        super(Handler, self).__init__(form, conf)
 
         self.kohde_id = None
         m = re.match(r'/([^/]+)/(\d+)/kommentti(/(\d+))?', self.conf['path_info'])
@@ -43,15 +39,28 @@ class Handler(BaseHandler):
 
         kommentti = Kommentti.new(kohde_id=self.kohde_id, teksti=teksti, kuva=kuva)
 
-        self.redirect_after_post("%s/%s/%d?comment_created=%d" %
+        if self.sessio is not None:
+            kommentti.omistaja = self.sessio.henkilo_id
+            kommentti.save()
+
+        self.redirect_after_post("%s/%s/%d?comment_created=%d&yyy=%s" %
                                  (self.conf['script_name'],
                                   self.kohde_luokka,
                                   self.kohde_id,
-                                  kommentti.kommentti_id))
+                                  kommentti.kommentti_id,
+                                  kuva is None))
 
         return [ self.headers, self.parameters ]
 
     def delete(self):
+        if not self.authorized():
+            self.redirect_after_post("%s/%s/%d?status=not_authorized" %
+                                     (self.conf['script_name'],
+                                      self.kohde_luokka,
+                                      self.kohde_id))
+
+            return [ self.headers, self.parameters ]
+            
         #
         # Salli DELETE vain yksittäisille kommenteille. Jos
         # kommentti_id:tä ei ole määritelty polussa, olisi DELETE

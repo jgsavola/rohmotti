@@ -12,19 +12,7 @@
 
     ${status}
 
-    <form class="cmxform" action="${REQUEST_URI}" method="post">
-      <fieldset>
-	<legend>Lisää resepti:</legend>
-	<ol>
-	  <li>
-	    <input type="text" name="nimi" autofocus />
-	  </li>
-	  <li>
-	    <input type="submit" value="Lisää!" />
-	  </li>
-	</ol>
-      </fieldset>
-    </form>
+    ${lisaalomake}
 
     ${reseptilista}
 

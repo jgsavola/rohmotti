@@ -12,8 +12,27 @@ p {
 
 p.status {
     color: red;
-    background: #e0e0c0;
-    width: 20em }
+    width: 600px;
+}
+
+div.kohdeinfo {
+    font: 14px/100% Arial, Helvetica, sans-serif;
+    color: #707070;
+    width: 600px;
+}
+
+div.kohdeinfofloat {
+    text-align: right;
+    font: 14px/100% Arial, Helvetica, sans-serif;
+    color: #707070;
+    float: right;
+}
+
+span.tuntematon {
+    font: 14px/100% Arial, Helvetica, sans-serif;
+    color: #707070;
+    font-style: italic
+}
 
 img {
     margin-top: 20px;

@@ -97,7 +97,16 @@ def main():
 
     if APP_ROOT_URI is None:
         sys.stdout.write('Content-Type: text/plain; charset=UTF-8\r\n\r\n')
-        print "Asennushakemistoa (install_dir) ei ole asetettu. Muokkaa asetuksia rohmotti.py:n alussa!"
+        print "Sovelluksen juuri-URI:tä (APP_ROOT_URI) ei ole asetettu."
+        print
+        print "APP_ROOT_URI määrittää, mistä rohmotin staattiset tiedostot,"
+        print "kuten CSS-tyylit ja kuvat löytyvät."
+        print
+        print "Esim. APP_ROOT_URI='/~me/rohmotti'"
+        print "  ==> tyylit: '/~me/rohmotti/styles'"
+        print "  ==> kuvat: '/~me/rohmotti/images'"
+        print
+        print "Muokkaa asetuksia rohmotti.py:n alussa!"
         return(0)
 
     form = cgi.FieldStorage()

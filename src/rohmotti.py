@@ -1,9 +1,40 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
 import os
 import pwd
+
+######################################
+# Konfiguraatio: muuta mieleiseksesi #
+######################################
+
+#
+# Staattisten tiedostojen sijainnit URI-muodossa.
+#
+APP_ROOT_URI = None
+
+PYTHON_MODULE_PATH = '.'
+HTML_TEMPLATE_PATH = '../html_templates'
+
+#
+# Oletus: tietokantakäyttäjä ja tietokannan nimi on sama kuin ohjelman
+#         käyttäjä, salasanaa ei tarvita (esim. ident-tunnistus),
+#         yhteys otetaan socketien kautta.
+#
+DSN = "dbname=%(dbuser)s user=%(dbuser)s" % { 'dbuser': pwd.getpwuid(os.getuid()).pw_name },
+#
+# Jos oletus ei toimi, muuta dsn vapaasti:
+#
+# DSN = "host=HOST port=PORT user=USER password=PASSWORD dbname=DBNAME",
+
+#
+# Tietokantakaavio, johon tietokantaosat on asennettu.
+#
+DBSCHEMA = 'rohmotti'
+
+import sys
+sys.path.insert(0, PYTHON_MODULE_PATH)
+
 import re
 import psycopg2
 import cgi
@@ -28,16 +59,16 @@ handler_mapping = [[r'^/ruokaaine$',       'webapp.handlers.ruokaaine'],
                    [r'^/kirjautuminen',    'webapp.handlers.kirjautuminen'],
                    [r'^/henkilo',          'webapp.handlers.henkilo'],
                    [r'^/haku',             'webapp.handlers.haku']]
-template_mapping = [[r'^/ruokaaine$',      '/html_templates/ruokaaine.html_'],
-                    [r'^/ruokaaine/\d+$',  '/html_templates/ruokaaine_1.html_'],
-                    [r'^/resepti$',        '/html_templates/resepti.html_'],
-                    [r'^/resepti/\d+$',    '/html_templates/resepti_1.html_'],
-                    [r'^/kirjautuminen$',  '/html_templates/kirjautuminen.html_'],
-                    [r'^/henkilo$',        '/html_templates/henkilo.html_'],
-                    [r'^/henkilo/\d+$',    '/html_templates/henkilo_1.html_'],
+template_mapping = [[r'^/ruokaaine$',      'ruokaaine.html_'],
+                    [r'^/ruokaaine/\d+$',  'ruokaaine_1.html_'],
+                    [r'^/resepti$',        'resepti.html_'],
+                    [r'^/resepti/\d+$',    'resepti_1.html_'],
+                    [r'^/kirjautuminen$',  'kirjautuminen.html_'],
+                    [r'^/henkilo$',        'henkilo.html_'],
+                    [r'^/henkilo/\d+$',    'henkilo_1.html_'],
                     [r'^/kuva/\d+$',       None],
-                    [r'^/haku$',           '/html_templates/haku.html_'],
-                    [r'^$',                '/html_templates/rohmotti.html_']]
+                    [r'^/haku$',           'haku.html_'],
+                    [r'^$',                'rohmotti.html_']]
 
 def get_handler_name():
     path = re.sub(r'/[^/]+$', '', os.environ['SCRIPT_FILENAME'])
@@ -47,12 +78,12 @@ def get_handler_name():
             return pair[1]
 
 def get_html_template_filename():
-    path = re.sub(r'/[^/]+$', '', os.environ['SCRIPT_FILENAME'])
+    path = HTML_TEMPLATE_PATH
 
     for pair in template_mapping:
         if re.match(pair[0], os.environ.get('PATH_INFO', '')):
             if pair[1] is not None:
-                return path + pair[1]
+                return path + '/' + pair[1]
 
 def import_module(name):
     mod = __import__(name)
@@ -64,10 +95,19 @@ def import_module(name):
 def main():
     cgitb.enable()
 
+    if APP_ROOT_URI is None:
+        sys.stdout.write('Content-Type: text/plain; charset=UTF-8\r\n\r\n')
+        print "Asennushakemistoa (install_dir) ei ole asetettu. Muokkaa asetuksia rohmotti.py:n alussa!"
+        return(0)
+
     form = cgi.FieldStorage()
-    dbuser = pwd.getpwuid(os.getuid()).pw_name
-    dbname = dbuser
-    conn = psycopg2.connect("dbname=%s user=%s" % (dbname, dbuser))
+
+    #
+    # Muodosta tietokantayhteys. Aseta oletuspolku.
+    #
+    conn = psycopg2.connect(DSN)
+    conn.cursor().execute("""SET search_path TO %s, "$user", public""" % (DBSCHEMA))
+    conn.commit()
 
     #
     # Setup database connection for the object model
@@ -85,8 +125,8 @@ def main():
         if method_override in ['PUT', 'DELETE']:
             request_method = method_override
 
+    app_root_uri = APP_ROOT_URI
     script_name = os.environ.get('SCRIPT_NAME', '')
-    app_root_uri = re.sub(r'/src/rohmotti.py$', '', script_name)
     path_info = os.environ.get('PATH_INFO', '')
     full_path = script_name + path_info
     request_uri = os.environ.get('REQUEST_URI', '')

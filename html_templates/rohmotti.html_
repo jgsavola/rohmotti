@@ -19,8 +19,8 @@
       aterioista ja aterioille
       osallistuneista <a href="${REQUEST_URI}/henkilo">henkilöistä</a>. Voit
       suunnitella uuden aterian helposti ja turvallisesti &mdash;
-      Rohmotti tekee ostoslistat ja pitää huolen, ettet tarjoile samaa
-      ateriaa samoille henkilöille liian usein!
+      Rohmotti auttaa ostoslistan tekemisessä ja pitää huolen, ettet
+      tarjoile samaa ateriaa samoille henkilöille liian usein!
     </p>
 
     <p>Onko porkkanoita? Rohmotti etsii sinulle kaikki ruoka-ohjeet,
@@ -28,8 +28,7 @@
     käytetään <a href="${REQUEST_URI}/haku?q=porkkana">porkkanoita</a>.</p>
 
     <p>Rohmotissa voit lisätä kuvallisia
-      <a href="${REQUEST_URI}/kommentti">kommentteja</a> ruoka-aineille,
-      resepteille, aterioille ja henkilöille.</p>
+      kommentteja ruoka-aineille ja resepteille.</p>
 
     <p><a href="${REQUEST_URI}/kirjautuminen">Luo</a> itsellesi
     käyttäjä ja liity Rohmottiin!</p>

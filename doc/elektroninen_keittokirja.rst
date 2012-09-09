@@ -83,6 +83,109 @@ g)  käyttäjien hallinta
 8. Asennustiedot
 ****************
 
+8.0. Vaatimukset
+----------------
+
+Rohmotilla on seuraavat vaatimukset:
+
+* Linux / \*NIX (testattu Debian, Ubuntu)
+* PostgreSQL 8.4+ (testattu PostgreSQL 8.4, 9.1)
+* Python 2.6+ (testattu Python 2.7)
+* psycopg2 (Debianissa tai Ubuntussa paketti python-psycopg2)
+* WWW-palvelin, jolla voi ajaa CGI-ohjelmia (testattu Apache 2.X)
+
+
+8.1. Lähdekoodi
+---------------
+
+Pura toimituspaketti tai hae koodi gitistä::
+
+    git clone git://github.com/jgsavola/rohmotti.git
+
+8.2. Tietokanta
+---------------
+
+Rohmotti toimii PostgreSQL:n versiossa 8.4 tai uudemmassa (testattu
+9.1). Asennuksen kohteena olevassa tietokannassa pitää olla
+asennettuna "plpgsql"-kieli::
+
+    CREATE LANGUAGE plpgsql;
+
+Rohmotin tietokantaosat asennetaan kokonaisuudessaan omaan kaavioon
+(schema), joten sen voi asentaa olemassa olevaan tietokantaan ilman
+että se häiritsee muiden sovellusten toimintaa. Oletuskaavio on
+"rohmotti", mutta tämän voi muuttaa.
+
+PostgreSQL samalla koneella (socket-yhteys, ident-autentikaatio,
+oletustietokanta, oletuskäyttäjä, oletusportti)::
+
+    psql --quiet --set ON_ERROR_STOP=1 -f sql/db.sql
+
+PostgreSQL verkossa (TCP/IP-yhteys)::
+
+    psql --quiet --set ON_ERROR_STOP=1 -h dbhost -p dbport -U dbuser -d dbname -f sql/db.sql
+
+Jos tulee virheitä, kannattaa ottaa --quiet pois ja yrittää uudelleen.
+Asennus tehdään yhden transaktion sisällä ja on idempotentti (*varo!
+asennus hävittää olemassa olevan kaavion kaikkine tietoineen*).
+
+Jos haluat muuttaa oletuskaaviota, vaihda kaavion nimet db.sql:n
+ensimmäisillä riveillä. *Huom! muista muuttaa "search_path" myös
+rohmotti.py:ssä.*
+
+Rohmotin tietokantafunktiot toimivat vain, jos (sessiokohtaisessa)
+"search_path"-asetuksessa on Rohmotin asennuskaavio::
+
+    SET search_path TO rohmotti, "$user", public;
+
+Pysyvä, tietokantakohtainen asetus::
+
+    ALTER DATABASE dbname SET search_path TO rohmotti, "$user", public;
+
+8.3. WWW-sovellus
+-----------------
+
+Rohmotin tämä versio toimii pelkästään CGI-ohjelmana. Rohmotissa on
+vain yksi CGI-ohjelma, rohmotti.py.
+
+CGI-ohjelman voi asentaa monella tavalla. Jos käytössä on Apache,
+yksinkertainen tapa on tehdä uusi hakemisto (WWWDIR) johonkin Apachen
+palvelemaan hakemistoon ja luoda samaan hakemistoon
+.htaccess-tiedosto::
+
+    ASENNUSHAKEMISTO=/src/rohmotti
+    WWWDIR=/joku/hakemisto/rohmotti
+    
+    mkdir -p $WWWDIR
+    echo "AddHandler cgi-script py" >$WWWDIR/.htaccess
+    cp $ASENNUSHAKEMISTO/src/rohmotti.py $WWWDIR/
+
+Rohmotti tarvitsee myös seuraavia WWW-palvelimen tarjoilemia
+staattisia tiedostoja::
+
+    cp -a $ASENNUSHAKEMISTO/static/* $WWWDIR/
+
+Python-moduulit toimivat, jos Pythonin hakupolussa on $ASENNUSHAKEMISTO/src.
+
+Muokkaa asetuksia rohmotti.py:n alussa:
+
+APP_ROOT_URI
+    staattisten tiedostojen sijainti www-selaimen
+    saavutettavissa
+
+PYTHON_MODULE_PATH
+    Rohmotin modulien sijainti ($ASENNUSHAKEMISTO/src)
+
+HTML_TEMPLATE_PATH
+    HTML-mallineitten sijainti ($ASENNUSHAKEMISTO/html_templates)
+
+DSN
+    tietokantayhteyden parametrit
+
+DBSCHEMA
+    tietokantaosien asennuskaavio (rohmotti)
+
+
 9. Käynnistys / käyttöohje
 ***************************
 

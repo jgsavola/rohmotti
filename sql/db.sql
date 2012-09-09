@@ -106,8 +106,7 @@ INSERT INTO resepti_ruokaaine (jarjestys, resepti_id, ruokaaine_id, maara, mitta
 ;
 
 CREATE TABLE ateria(
-       ateria_id serial PRIMARY KEY,
-       kohde_id int NOT NULL REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('AT'),
+       ateria_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('AT'),
        aika timestamp with time zone NOT NULL
 );
 

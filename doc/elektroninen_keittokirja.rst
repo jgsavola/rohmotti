@@ -343,7 +343,7 @@ käyttäjille ei näytetä muokkaustoimintoja eikä henkilön rajoituksia.
 Kaikille pääsivuille pääsee joka sivulla esitettävän navigointipalkin
 kautta.
 
-.. figure:: kayttoliittyma.png
+.. figure:: kuvat/kayttoliittyma.png
     :alt: Käyttöliittymän siirtymät.
 
     Käyttöliittymän siirtymät.
@@ -355,7 +355,7 @@ reseptejä (GET) tai luoda uusia reseptejä (POST). Reseptikohtaisen
 katsoa reseptin tietoja (GET) tai poistaa resepti (DELETE).
 
 
-.. figure:: rest-operaatiot.png
+.. figure:: kuvat/rest-operaatiot.png
     :alt: Käyttöliittymän toiminnot / REST-operaatiot
 
     Käyttöliittymän toiminnot / REST-operaatiot

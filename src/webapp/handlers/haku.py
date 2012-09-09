@@ -8,22 +8,17 @@ from db.DatabaseObject import DatabaseObject
 
 class Handler(BaseHandler):
     def __init__(self, form, conf):
-        self.form = form
-        self.conf = conf
-
-        self.headers = []
-        self.parameters = {}
+        super(Handler, self).__init__(form, conf)
 
     def get(self):
-        if self.conf['request_method'] == 'GET':
-            q = self.form.getvalue('q')
+        q = self.form.getvalue('q')
 
-            hakutulos = ''
-            if q is not None:
-                hakutulos = self.do_query(q)
+        hakutulos = ''
+        if q is not None:
+            hakutulos = self.do_query(q)
 
-            self.headers.append('Content-Type: text/html; charset=UTF-8')
-            self.parameters.update({ 'hakutulos':  hakutulos, 'query': q or '' })
+        self.headers.append('Content-Type: text/html; charset=UTF-8')
+        self.parameters.update({ 'hakutulos':  hakutulos, 'query': q or '' })
 
         return [ self.headers, self.parameters ]
 

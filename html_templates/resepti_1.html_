@@ -58,7 +58,7 @@
     <div class="commentform">
       <form class="cmxform" action="${FULL_PATH}/kommentti" method="post" enctype="multipart/form-data">
 	<fieldset>
-	  <legend>Lataa kuva:</legend>
+	  <legend>Kommentoi:</legend>
 	  <ol>
 	    <li>
 	      <label for="kuva">Kuva</label>

@@ -12,11 +12,13 @@
 
     <h1>${nimi}</h1>
 
-    ${kuva}
-
     <h2>Rajoitukset</h2>
 
     ${rajoituslista}
+
+    <h2>Kommentit</h2>
+
+    ${kuva}
 
     <div class="commentform">
       <form class="cmxform" action="${FULL_PATH}/kommentti" method="post" enctype="multipart/form-data">
@@ -32,7 +34,7 @@
 	      <textarea rows="6" cols="60" name="teksti" id="teksti"></textarea>
 	    </li>
 	    <li>
-	      <input type="submit" value="Lähetä!" />
+	      <input type="submit" value="Lähetä" />
 	    </li>
 	    <input type="hidden" name="action" value="upload" />
 	  </ol>

@@ -17,41 +17,13 @@
     <div class="ruokaaineetlista">${ruokaaineetlista}</div>
 
     <div class="commentform">
-      <form class="cmxform" action="${FULL_PATH}/ruokaaine" method="post" enctype="multipart/form-data">
-	<fieldset>
-	  <legend>Lisää ruoka-aine:</legend>
-	  <ol>
-	    <li>
-	      <label for="ruokaaine_id">Ruoka-aine</label>
-	      <select name="ruokaaine_id" id="ruokaaine_id">
-		${ruokaaine_optiot}
-	      </select>
-	    </li>
-	    <li>
-	      <label for="maara">Määrä</label>
-	      <input type="text" name="maara" id="maara" />
-	    </li>
-	    <li>
-	      <label for="mittayksikko">Mittayksikko</label>
-	      <select name="mittayksikko" id="mittayksikko">
-		${mittayksikko_optiot}
-	      </select>
-	    </li>
-	    <li>
-	      <input type="submit" value="Lähetä!" />
-	    </li>
-	    <input type="hidden" name="action" value="add" />
-	  </ol>
-	</fieldset>
-      </form>
+      ${lisaalomake}
     </div>
 
     <p><strong>Valmistusohje:</strong></p>
     ${valmistusohje}
 
-    <form action="${REQUEST_URI}">
-      <input type="submit" name="mode" value="edit" />
-    </form>
+    <h2>Kommentit</h2>
 
     ${kuva}
 
@@ -69,7 +41,7 @@
 	      <textarea rows="6" cols="60" name="teksti" id="teksti"></textarea>
 	    </li>
 	    <li>
-	      <input type="submit" value="Lähetä!" />
+	      <input type="submit" value="Lähetä" />
 	    </li>
 	    <input type="hidden" name="action" value="upload" />
 	  </ol>

@@ -44,7 +44,7 @@ class Handler(BaseHandlerWithSession):
         return '\n'.join(items)
 
     def get(self):
-        mode = self.form.getvalue('mode')
+        edit = self.form.getvalue('edit')
 
         self.resepti = Resepti.load_from_database(self.resepti_id)
 
@@ -77,25 +77,64 @@ class Handler(BaseHandlerWithSession):
         ruokaaineetlista = self.create_ruokaaineet_list(self.resepti.resepti_id)
 
         valmistusohje_text = "<div class=\"valmistusohje\">%s</div>" % (self.resepti.valmistusohje)
-        if mode == 'edit':
-            valmistusohje_text = textwrap.dedent("""\
-                <form class="cmxform" action="%s%s" method="post">
-                  <fieldset>
-                    <legend></legend>
-                    <ol>
-                      <li>
-                        <textarea name="valmistusohje" rows="10" cols="60" id="valmistusohje">%s</textarea>
-                      </li>
-                      <li>
-                        <input type="submit" value="submit" />
-                      </li>
-                      <input type="hidden" name="action" value="updaterecipe"</input>
-                    </ol>
-                  </fieldset>
-                </form>""" % (self.conf['script_name'], self.conf['path_info'], self.resepti.valmistusohje))
+        if self.authorized():
+            if edit is not None:
+                valmistusohje_text = textwrap.dedent("""\
+                    <form class="cmxform" action="%s%s" method="post">
+                      <fieldset>
+                        <legend></legend>
+                        <ol>
+                          <li>
+                            <textarea name="valmistusohje" rows="10" cols="60" id="valmistusohje">%s</textarea>
+                          </li>
+                          <li>
+                            <input type="submit" value="Tallenna" />
+                          </li>
+                          <input type="hidden" name="action" value="updaterecipe"</input>
+                        </ol>
+                      </fieldset>
+                    </form>""" % (self.conf['script_name'], self.conf['path_info'], self.resepti.valmistusohje))
+            else:
+                valmistusohje_text = valmistusohje_text + """\
+                    <form action="%s">
+                      <input type="submit" name="edit" value="Muokkaa" />
+                    </form>""" % (self.conf['full_path'])
 
-        ruokaaine_optiot = self.create_ruokaaine_optiot()
-        mittayksikko_optiot = self.create_mittayksikko_optiot()
+        lisaalomake = ''
+        if self.authorized():
+            ruokaaine_optiot = self.create_ruokaaine_optiot()
+            mittayksikko_optiot = self.create_mittayksikko_optiot()
+
+            lisaalomake = """\
+          <form class="cmxform" action="%s/ruokaaine" method="post" enctype="multipart/form-data">
+            <fieldset>
+              <legend>Lisää ruoka-aine:</legend>
+              <ol>
+                <li>
+                  <label for="ruokaaine_id">Ruoka-aine</label>
+                  <select name="ruokaaine_id" id="ruokaaine_id">
+                    %s
+                  </select>
+                </li>
+                <li>
+                  <label for="maara">Määrä</label>
+                  <input type="text" name="maara" id="maara" />
+                </li>
+                <li>
+                  <label for="mittayksikko">Mittayksikko</label>
+                  <select name="mittayksikko" id="mittayksikko">
+                    %s
+                  </select>
+                </li>
+                <li>
+                  <input type="submit" value="Lisää" />
+                </li>
+                <input type="hidden" name="action" value="add" />
+              </ol>
+            </fieldset>
+          </form>
+            """ % (self.conf['full_path'], ruokaaine_optiot, mittayksikko_optiot)
+
 
         status = ''
         if self.form.getvalue('updated', '') == 'true':
@@ -109,9 +148,8 @@ class Handler(BaseHandlerWithSession):
                                  'valmistusohje': valmistusohje_text,
                                  'kuva': kuva_link,
                                  'ruokaaineetlista': ruokaaineetlista,
-                                 'ruokaaine_optiot': ruokaaine_optiot,
-                                 'mittayksikko_optiot': mittayksikko_optiot,
-                                 'status': status
+                                 'status': status,
+                                 'lisaalomake': lisaalomake
                                  })
 
         return [ self.headers, self.parameters ]
@@ -146,32 +184,35 @@ class Handler(BaseHandlerWithSession):
         return options
 
     def post(self):
-        action = self.form.getvalue('action')
+        if self.authorized(self.resepti_id):
+            action = self.form.getvalue('action')
 
-        if action == 'updaterecipe':
-            valmistusohje_unsafe = self.form.getvalue('valmistusohje')
+            if action == 'updaterecipe':
+                valmistusohje_unsafe = self.form.getvalue('valmistusohje')
 
-            #
-            # Salli vain turvallisten HTML-tagien käyttö kommenteissa.
-            #
-            parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
-            valmistusohje = parser.parse_string(valmistusohje_unsafe)
+                #
+                # Salli vain turvallisten HTML-tagien käyttö kommenteissa.
+                #
+                parser = CommentHTMLParser(ok_tags=['p', 'strong', 'pre', 'em', 'b', 'br', 'i', 'hr', 's', 'sub', 'sup', 'tt', 'u'])
+                valmistusohje = parser.parse_string(valmistusohje_unsafe)
 
-            self.resepti = Resepti.load_from_database(self.resepti_id)
+                self.resepti = Resepti.load_from_database(self.resepti_id)
 
-            self.resepti.valmistusohje = valmistusohje
-            self.resepti.save()
+                self.resepti.valmistusohje = valmistusohje
+                self.resepti.save()
 
-            self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
+                self.redirect_after_post("%s?updated=true" % (self.conf['full_path']))
+        else:
+            self.redirect_after_post("%s/resepti?status=not_authorized" % (self.conf['script_name']))
 
         return [ self.headers, self.parameters ]
 
     def delete(self):
-        if self.authorized(self.ruokaaine_id):
+        if self.authorized(self.resepti_id):
             Resepti.delete(self.resepti_id)
 
             self.redirect_after_post("%s/resepti?deleted=%d" % (self.conf['script_name'], self.resepti_id))
-
-        self.redirect_after_post("%s/ruokaaine?status=not_authorized" % (self.conf['script_name']))
+        else:
+            self.redirect_after_post("%s/resepti?status=not_authorized" % (self.conf['script_name']))
 
         return [ self.headers, self.parameters ]

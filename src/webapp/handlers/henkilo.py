@@ -46,7 +46,7 @@ class Handler(BaseHandlerWithSession):
                 <input type="text" name="rajoitus"/>
               </li>
               <li>
-                <input type="submit" value="Lisää!" />
+                <input type="submit" value="Lisää" />
               </li>
             </ol>
           </fieldset>

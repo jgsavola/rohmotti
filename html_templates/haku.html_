@@ -24,7 +24,7 @@
 	    <input class="haku" id="searchforminput" type="text" name="q" id="q" value="${query}" autofocus />
 	  </li>
 	  <li>
-	    <input type="submit" value="Hae!" />
+	    <input type="submit" value="Hae" />
 	  </li>
 	</ol>
       </fieldset>

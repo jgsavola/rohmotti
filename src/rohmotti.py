@@ -170,7 +170,7 @@ def main():
     navigation = """\
         <span class="navigation">
             <ul class="navigation">
-                <li class="navigation"><a id="rohmottinav" href="%(script_name)s"></a></li>
+                <li class="navigation"><a href="%(script_name)s">Rohmotti</a></li>
                 <li class="navigation"><a href="%(script_name)s/resepti">Reseptit</a></li>
                 <li class="navigation"><a href="%(script_name)s/ruokaaine">Ruoka-aineet</a></li>
                 <li class="navigation"><a href="%(script_name)s/henkilo">Henkilöt</a></li>

@@ -63,13 +63,13 @@ class Handler(BaseHandlerWithSession):
         # tulkittava niin, että kaikki reseptin kommentit halutaan
         # hävittää.
         #
-        if self.kommentti_id is not None:
-            Kommentti.delete(self.kommentti_id)
+        if self.rajoitus_id is not None:
+            Rajoitus.delete(self.rajoitus_id)
 
             self.redirect_after_post("%s/%s/%d?comment_deleted=%d" %
                                      (self.conf['script_name'],
                                       self.kohde_luokka,
                                       self.kohde_id,
-                                      self.kommentti_id))
+                                      self.rajoitus_id))
 
         return [ self.headers, self.parameters ]

@@ -45,7 +45,7 @@ INSERT INTO ruokaaine (nimi) VALUES
 CREATE TABLE resepti(
        resepti_id int PRIMARY KEY REFERENCES kohde (kohde_id) DEFAULT luo_uusi_kohde('RE'),
        nimi text NOT NULL UNIQUE,
-       valmistusohje text NOT NULL,
+       valmistusohje text,
        tsv tsvector
 );
 
@@ -128,9 +128,11 @@ CREATE TABLE kommentti(
 );
 
 CREATE TABLE rajoitus(
+       rajoitus_id serial PRIMARY KEY,
        ruokaaine_id int NOT NULL REFERENCES ruokaaine (ruokaaine_id),
        henkilo_id int NOT NULL REFERENCES henkilo (henkilo_id),
-       rajoitus text NOT NULL
+       rajoitus text NOT NULL,
+       UNIQUE (ruokaaine_id, henkilo_id)
 );
 
 --

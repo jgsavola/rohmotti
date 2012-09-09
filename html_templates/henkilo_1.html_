@@ -14,7 +14,14 @@
     
     <p>Tunnus: ${tunnus}</p> 
 
+    <h2>Rajoitukset:</h2>
+
+    ${lisaalomake}
+
+    ${rajoituslista}
+
     ${kuva}
+
   </body>
 </html>
 

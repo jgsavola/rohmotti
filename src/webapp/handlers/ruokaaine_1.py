@@ -7,6 +7,7 @@ from basehandlerwithsession import BaseHandlerWithSession
 from db.Ruokaaine import Ruokaaine
 from db.Kommentti import Kommentti
 from db.Henkilo import Henkilo
+from db.Rajoitus import Rajoitus
 from util.html_parser import CommentHTMLParser
 
 class Handler(BaseHandlerWithSession):
@@ -21,6 +22,8 @@ class Handler(BaseHandlerWithSession):
     def get(self):
         self.ruokaaine = Ruokaaine.load_from_database(self.ruokaaine_id)
 
+        self.render_restriction_list()
+
         kuva_link = ''
         for kommentti in self.ruokaaine.kommentit:
             tunnus = '<span class="tuntematon">tuntematon</span>'
@@ -28,10 +31,12 @@ class Handler(BaseHandlerWithSession):
                 omistaja = Henkilo.load_from_database(kommentti.omistaja)
                 tunnus = omistaja.tunnus
 
-            delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
-                               <input type="hidden" name="method_override" value="DELETE" />
-                               <input type="submit" value="Poista" class="deleteform" />
-                             </form>""" % (self.conf['full_path'], kommentti.kommentti_id)
+            delete_form = ''
+            if self.authorized():
+                delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
+                                   <input type="hidden" name="method_override" value="DELETE" />
+                                   <input type="submit" value="Poista" class="deleteform" />
+                                 </form>""" % (self.conf['full_path'], kommentti.kommentti_id)
 
             kuva_link += "<div class=\"comment\">"
             kuva_link += "<div class=\"timestamp\">%s %s %s</div>\n" % (tunnus, kommentti.aika, delete_form)
@@ -65,3 +70,27 @@ class Handler(BaseHandlerWithSession):
         self.redirect_after_post("%s/ruokaaine?status=not_authorized" % (self.conf['script_name']))
 
         return [ self.headers, self.parameters ]
+
+    def render_restriction_list(self):
+        if not self.authorized():
+            rajoituslista = 'Kirjaudu, jos haluat nähdä rajoitukset.'
+        else:
+            rajoituksia = 0
+            rajoituslista = '<ul class="rajoituslista">'
+            for rajoitus_id in Rajoitus.load_ids(ruokaaine_id=self.ruokaaine_id):
+                rajoituksia = rajoituksia + 1
+                rajoitus = Rajoitus.load_from_database(rajoitus_id)
+                henkilo = Henkilo.load_from_database(rajoitus.henkilo_id)
+
+                henkilo_link = ("""<a href="%s/henkilo/%d">%s</a>""" %
+                                  (self.conf['script_name'],
+                                   rajoitus.henkilo_id,
+                                   henkilo.tunnus))
+
+                rajoituslista += '<li>%s: %s</li>' % (rajoitus.rajoitus, henkilo_link)
+            rajoituslista += "</ul>"
+
+            if rajoituksia == 0:
+                rajoituslista = 'Ei rajoituksia.'
+
+        self.parameters.update({ 'rajoituslista': rajoituslista })

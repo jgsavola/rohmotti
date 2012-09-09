@@ -57,10 +57,12 @@ class Handler(BaseHandlerWithSession):
                 omistaja = Henkilo.load_from_database(kommentti.omistaja)
                 tunnus = omistaja.tunnus
 
-            delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
-                               <input type="hidden" name="method_override" value="DELETE" />
-                               <input type="submit" value="Poista" class="deleteform" />
-                             </form>""" % (self.conf['full_path'], kommentti.kommentti_id)
+            delete_form = ''
+            if self.authorized():
+                delete_form = """<form class="deleteform" action="%s/kommentti/%d" method="post">
+                                   <input type="hidden" name="method_override" value="DELETE" />
+                                   <input type="submit" value="Poista" class="deleteform" />
+                                 </form>""" % (self.conf['full_path'], kommentti.kommentti_id)
 
             kuva_link += "<div class=\"comment\">"
             kuva_link += "<div class=\"timestamp\">%s %s %s</div>\n" % (tunnus, kommentti.aika, delete_form)

@@ -21,7 +21,7 @@ HTML_TEMPLATE_PATH = '../html_templates'
 #         käyttäjä, salasanaa ei tarvita (esim. ident-tunnistus),
 #         yhteys otetaan socketien kautta.
 #
-DSN = "dbname=%(dbuser)s user=%(dbuser)s" % { 'dbuser': pwd.getpwuid(os.getuid()).pw_name },
+DSN = "dbname=%(dbuser)s user=%(dbuser)s" % { 'dbuser': pwd.getpwuid(os.getuid()).pw_name }
 #
 # Jos oletus ei toimi, muuta dsn vapaasti:
 #

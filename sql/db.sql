@@ -229,4 +229,59 @@ ON resepti_ruokaaine FOR EACH ROW EXECUTE PROCEDURE resepti_tsv_trigger();
 --        ruokaaine-taululle.
 --
 
+--
+-- Kommentit kohteille.
+--
+-- Nämä voisi ehkä siirtää lähemmäksi kohteitaan.
+--
+
+COMMENT ON SCHEMA rohmotti IS 'Rohmotti-sovelluksen tietokantakaavio.';
+COMMENT ON FUNCTION luo_uusi_kohde(text) IS 'Luodaan uusi kohde kohde-tauluun ja palautetaan saatu kohde_id.
+Käytetään default-arvona tauluissa, jotka kuvaavat "kohteita".';
+COMMENT ON FUNCTION muodosta_reseptin_teksti(resepti_id_in integer) IS 'Muodosta tekstimuotoinen esitys reseptistä ruoka-aineineen tekstihakua varten.
+(Tätä funktiota ei käytetä käyttöliittymässä.)';
+COMMENT ON FUNCTION resepti_tsv_trigger() IS 'Liipaisinfunktio, jonka avulla päivitetään resepti-taulun tsv-saraketta.';
+COMMENT ON COLUMN ateria.ateria_id IS 'Aterian tunniste.';
+COMMENT ON COLUMN ateria.aika IS 'Aterian tapahtumisaika.';
+COMMENT ON COLUMN henkilo.henkilo_id IS 'Henkilön tunniste.';
+COMMENT ON COLUMN henkilo.nimi IS 'Henkilön koko nimi.';
+COMMENT ON COLUMN henkilo.tunnus IS 'Henkilön (käyttäjän) käyttäjätunnus.';
+COMMENT ON COLUMN henkilo.salasana IS 'Salasanasta muodostettu kryptografinen tarkistussumma.';
+COMMENT ON COLUMN kohde.kohde_id IS 'Jokaisella kohteella on yksilöivä kohde_id.';
+COMMENT ON COLUMN kohde.tyyppi IS 'Kohteen tyyppi:
+
+AT=ateria
+HE=henkilo
+RA=ruokaaine
+RE=resepti';
+COMMENT ON COLUMN kohde.luotu IS 'Kohteen luomisen aikaleima.';
+COMMENT ON COLUMN kohde.omistaja IS 'Kohteen omistaja. Jos omistaja on NULL, omistaja on tuntematon.';
+COMMENT ON COLUMN kommentti.kommentti_id IS 'Kommentin tunniste.';
+COMMENT ON COLUMN kommentti.kohde_id IS 'Kommentin kohteen tunniste.';
+COMMENT ON COLUMN kommentti.teksti IS 'Kommentin teksti. Muoto on rajoitettu HTML. (Rajoitus tehdään sovelluskoodissa.)';
+COMMENT ON COLUMN kommentti.kuva IS 'Binäärimuotoinen kuva.';
+COMMENT ON COLUMN kommentti.aika IS 'Kommentin aikaleima.';
+COMMENT ON COLUMN kommentti.omistaja IS 'Kommentin tekijä (omistaja) tai NULL, jos kommentin tekijä on tuntematon.';
+COMMENT ON COLUMN mittayksikko.nimi IS 'Mittayksikön nimi, joka on samalla sen tunniste. Esim. cl, dl, kpl, jne.';
+COMMENT ON COLUMN mittayksikko.tyyppi IS 'Mittayksikön tyyppi. Esim. tilavuus, kappalemäärä, massa.';
+COMMENT ON COLUMN mittayksikko.perusyksikko IS 'Mittayksikön perusyksikkö. Voidaan käyttää mittojen normalisoinnissa.';
+COMMENT ON COLUMN mittayksikko.kerroin IS 'Kerroin, jolla mittayksikkö muunnetaan perusyksiköksi.';
+COMMENT ON COLUMN rajoitus.ruokaaine_id IS 'Se ruoka-aine, jota rajoitus koskee.';
+COMMENT ON COLUMN rajoitus.henkilo_id IS 'Sen henkilön tunniste, jota rajoitus koskee.';
+COMMENT ON COLUMN rajoitus.rajoitus IS 'Rajoituksen merkitys vapaana tekstinä. Esim. allergia, tykkääminen, inho.';
+COMMENT ON COLUMN rajoitus.rajoitus_id IS 'Rajoituksen yksilöivä tunniste, joka on olemassa oikeastaan vain 
+siksi, että tietokanta–olio-malli ei ymmärrä monikkomuotoisia pääavaimia.';
+COMMENT ON COLUMN resepti.resepti_id IS 'Reseptin tunniste.';
+COMMENT ON COLUMN resepti.nimi IS 'Reseptin nimi.';
+COMMENT ON COLUMN resepti.valmistusohje IS 'Reseptin valmistusohje. HTML-muotoinen, HTML-tagien rajoitus tapahtuu sovelluskoodissa.';
+COMMENT ON COLUMN resepti.tsv IS 'Tekstihaun "tsvector"-muotoinen sarake. Tätä saraketta vasten tehdään 
+tekstihaut. Sarakkeen päivitys tehdään automaattisesti liipasimien avulla.';
+COMMENT ON COLUMN resepti_ruokaaine.jarjestys IS 'Ruoka-aineen järjestystys reseptissä. Käytetään reseptin ruoka-ainelistan järjestämiseen.';
+COMMENT ON COLUMN resepti_ruokaaine.resepti_id IS 'Reseptin tunniste.';
+COMMENT ON COLUMN resepti_ruokaaine.ruokaaine_id IS 'Ruoka-aineen tunniste.';
+COMMENT ON COLUMN resepti_ruokaaine.maara IS 'Ruoka-aineen määrä reseptissä.';
+COMMENT ON COLUMN resepti_ruokaaine.mittayksikko IS 'Ruoka-aineen määrän mittayksikkö.';
+COMMENT ON COLUMN ruokaaine.ruokaaine_id IS 'Ruoka-aineen tunniste.';
+COMMENT ON COLUMN ruokaaine.nimi IS 'Ruoka-aineen nimi.';
+
 COMMIT;
